@@ -1,0 +1,89 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Creation categorie principale</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">Creation d'un administrateur</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-body">
+								<div id="addproduct-nav-pills-wizard" class="twitter-bs-wizard">
+									<ul class="twitter-bs-wizard-nav">
+										<li class="nav-item add-product-border">
+											<a
+												href="#basic-info" class="nav-link" data-toggle="tab">
+											</a>
+										</li>
+									</ul>
+									<!-- ebd ul -->
+									<div class="tab-content twitter-bs-wizard-tab-content">
+									<a href="/administrateurs" class="btn btn-success my-4">Liste des administrateurs</a>											
+										<div class="tab-pane" id="basic-info">
+											<h4 class="header-title">Information generales</h4>
+
+											{{ form_start(form) }}
+												<div class="mb-3 col-lg-6">
+													<label class="form-label" for="email">Email</label>
+													{{ form_widget(form.email , {'attr' : {'class' : 'form-control'}, }) }}
+												</div>
+
+                                                <div class="mb-3 col-lg-6">
+													<label class="form-label" for="roles">Role</label>
+													{{ form_widget(form.roles, {'attr' : {'class' : 'form-control d-flex gap-2 '}, }) }}
+												</div>
+
+                                                <div class="mb-3 col-lg-6">
+													<label class="form-label" for="password">password</label>
+													{{ form_widget(form.password , {'attr' : {'class' : 'form-control'}, }) }}
+												</div>
+
+                                                <div class="mb-3 col-lg-6">
+													{{ form_widget(form.submit, {'attr' : {'class':'btn btn-primary'}} ) }}
+												</div>
+											{{ form_end(form)}}
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end row -->
+
+			</div>
+
+
+		</div>
+		<!-- container-fluid -->
+	</div>
+
+{% endblock %}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>
+			{% block title %}Welcome!
+			{% endblock %}
+		</title>
+		<link
+		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+		{# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta content="Linkih" name="description"/>
+		<meta
+		content="alexisng90210@gmail.com" name="author"/>
+		<!-- App favicon -->
+		<link
+		rel="shortcut icon" href="assets/images/favicon.ico">
+
+		<!-- plugin css -->
+		<link
+		href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css"/>
+		 
+		  <!-- dropzone css -->
+          <link href="{{ asset('assets/libs/dropzone/min/dropzone.min.css')}}" rel="stylesheet" type="text/css" />
+
+		<!-- twitter-bootstrap-wizard css -->
+        <link rel="stylesheet" href="{{ asset('assets/libs/twitter-bootstrap-wizard/prettify.css')}}">
+
+        <!-- select2 css -->
+        <link href="{{ asset('assets/libs/select2/css/select2.min.css')}}" rel="stylesheet" type="text/css" />
+
+		<!-- Bootstrap Css -->
+		<link
+		href="{{ asset('assets/css/bootstrap-dark.css')}}" id="bootstrap-style" rel="stylesheet" type="text/css"/>
+		<!-- Icons Css -->
+		<link
+		href="{{ asset('assets/css/icons.css')}}" rel="stylesheet" type="text/css"/>
+		<!-- App Css-->
+		<link href="{{ asset( 'assets/css/app-dark.css' )}}" id="app-style" rel="stylesheet" type="text/css"/>
+
+
+		{% block stylesheets %}
+			{{ encore_entry_link_tags('app') }}
+		{% endblock %}
+
+		{% block javascripts %}
+			{{ encore_entry_script_tags('app') }}
+		{% endblock %}
+	</head>
+
+	<body>
+		<!-- Begin page -->
+		<div id="layout-wrapper">
+
+			{% include "dashboard/_extra/_header_bar.html.twig" %}
+
+			{% include "dashboard/_extra/_vertical_menu.html.twig" %}
+		
+			<div class="main-content"> 
+
+				{% block dashboard %}{% endblock %}
+	
+			</div>
+
+		</div>
+		
+		{% include "dashboard/_extra/_right_sidebar.html.twig" %}
+	
+		<div class="rightbar-overlay"></div>
+
+		<!-- JAVASCRIPT -->
+		<script src="{{ asset('assets/libs/jquery/jquery.min.js')}}"></script>
+		<script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+		<script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
+		<script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
+		<script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
+
+
+		<!-- apexcharts -->
+		<script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js')}}"></script>
+
+		<!-- Plugins js-->
+		<script src="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
+		<script src="{{ asset('assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js')}}"></script>
+		<script src="{{ asset('assets/js/pages/dashboard.init.js')}}"></script>
+
+		 <!-- twitter-bootstrap-wizard js -->
+        <script src="{{ asset('assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js')}}"></script>
+
+        <script src="{{asset('assets/libs/twitter-bootstrap-wizard/prettify.js')}}"></script>
+
+        <!-- select 2 plugin -->
+        <script src="{{ asset('assets/libs/select2/js/select2.min.js')}}"></script>
+
+        <!-- dropzone plugin -->
+        <script src="{{ asset('assets/libs/dropzone/min/dropzone.min.js')}}"></script>
+
+        <!-- init js -->
+        <script src="{{ asset('assets/js/pages/ecommerce-add-product.init.js')}}"></script>
+
+		<script src="{{ asset('assets/js/app.js') }}"></script>
+
+		<script>
+				function createetab() {
+
+					if( document.querySelector("#nomEtab").value && document.querySelector("#email").value && 
+					document.querySelector("#mobile").value && document.querySelector("#adresse").value && 
+					document.querySelector("#Password").value && document.querySelector("#longitude").value && 
+					document.querySelector("#Latitude").value && document.querySelector("#role").value
+					&& document.querySelector("#codepostal").value
+					) {
+
+						fetch("/api/v1/add/utilisateur", {
+						method:"POST",
+						data: JSON.stringify({
+							etablissement: {
+								nom : document.querySelector("#nomPrenom").value,
+								email : document.querySelector("#email").value,
+								mobile : document.querySelector("#mobile").value,
+								password : document.querySelector("#Password").value,
+								role : document.querySelector("#role").value,
+								latitude : document.querySelector("#Latitude").value,
+								longitude: document.querySelector("#longitude").value,
+								adresse: document.querySelector("#Adresse").value,
+								codepostal: document.querySelector("#codepostal").value,
+								nom_prenom_responsable: "", // a definir
+								poste_occupe: "" // a definir
+								sciem: "",  // a definir
+								langue:"",  // a definir
+								pays:""  // a definir
+							},
+							categorie:[], // a definir
+
+
+						}),
+						header:{
+							Accept: 'application/json'
+						}
+					}).then( data => {
+						console.log(data);
+
+						if (data.code == 'success') {
+							document.querySelector('#alert-call-danger').innerText = ""
+							document.querySelector('#alert-call-success').innerText=data.message
+							document.querySelector("#nomPrenom").value = ""
+							document.querySelector("#email").value = ""
+							document.querySelector("#mobile").value = ""
+							document.querySelector("#Adresse").value = ""
+							document.querySelector("#Password").value = ""
+						} else {
+							document.querySelector('#alert-call-success').innerText = ""
+							document.querySelector('#alert-call-danger').innerText=data.message
+						}
+					})
+
+					} else {
+						document.querySelector('#alert-call-success').innerText = ""
+							document.querySelector('#alert-call-danger').innerText="Veuillez renseigner tous les champs"
+					} 
+				}
+			</script>
+
+	</body>
+
+</html>

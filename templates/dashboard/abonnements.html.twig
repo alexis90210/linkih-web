@@ -1,0 +1,93 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+<div class="page-content">
+
+                    <!-- start page title -->
+                    <div class="page-title-box">
+                        <div class="container-fluid">
+                         <div class="row align-items-center">
+                             <div class="col-sm-6">
+                                 <div class="page-title">
+                                     <h4>Liste des abonnements</h4>
+                                         <ol class="breadcrumb m-0">
+                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Linkih</a></li>
+                                             <li class="breadcrumb-item active">abonnement</li>
+                                         </ol>
+                                 </div>
+                             </div>
+                             <div class="col-sm-6">
+                                <div class="float-end d-none d-sm-block">
+                                    <a href={{path('app_dashboard_new_abonnement')}} class="btn btn-success">Ajouter un abonnement</a>
+                                </div>
+                             </div>
+                         </div>
+                        </div>
+                     </div>
+                     <!-- end page title -->    
+
+
+                    <div class="container-fluid">
+
+                        <div class="page-content-wrapper">
+                         
+
+
+
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card m-b-30">
+                                        <div class="card-body">
+                                            <h4 class="mt-0 header-title mb-4">Les abonnements</h4>
+                                            <div class="table-responsive">
+                                                <table class="table table-centered table-nowrap table-hover mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Nom</th>
+                                                            <th scope="col">Nom (Anglais)</th>
+                                                            <th scope="">Code</th>
+                                                            <th scope="col">Montant</th>  
+                                                            <th scope="col">Description</th>
+                                                            <th scope="col">Duree Abonnement(en jour)</th>  
+                                                            <th scope="col">Type abonnement</th>  
+                                                            <th scope="col" style="width:120px">Action</th>  
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for abonnement in abonnements %}
+                                                            <tr>
+                                                            <td>{{abonnement.nom}}</td> 
+                                                            <td>{{abonnement.EnNom}}</td> 
+                                                            <td>{{abonnement.code}}</td>                                                            
+                                                            <td>{{abonnement.montant}}{{abonnement.devise}}</td> 
+                                                            <td>{{abonnement.description}}</td>                                                            
+                                                            <td>{{abonnement.getDureeAbonnement}}</td> 
+                                                            <td>{{abonnement.getTypeAbonnement== 1? 'Societe':'Auto Entrepreneur'}}</td> 
+                                                            <td id="tooltip-container0">
+													<a href={{path('app_dashboard_edit_abonnement',{'id':abonnement.id})}} class="me-3 text-primary" data-bs-container="#tooltip-container0" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+														<i class="mdi mdi-pencil font-size-18"></i>
+													</a>
+													<a href={{path('app_dashboard_delete_administrateur',{'id':abonnement.id})}} class="text-danger" data-bs-container="#tooltip-container0" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+														<i class="mdi mdi-trash-can font-size-18"></i>
+													</a>
+												</td>                                                           
+                                                        </tr>
+                                                        {% endfor %}
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+        
+                                        </div>
+                                    </div>
+                                </div>
+        
+                            </div>
+                            <!-- END ROW -->
+
+                        </div>
+        
+                        
+                    </div> <!-- container-fluid -->
+                </div>
+{% endblock %}

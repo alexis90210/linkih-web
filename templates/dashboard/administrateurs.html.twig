@@ -1,0 +1,89 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+<div class="page-content">
+
+                    <!-- start page title -->
+                    <div class="page-title-box">
+                        <div class="container-fluid">
+                         <div class="row align-items-center">
+                             <div class="col-sm-6">
+                                 <div class="page-title">
+                                     <h4>Liste des administrateurs</h4>
+                                         <ol class="breadcrumb m-0">
+                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Linkih</a></li>
+                                             <li class="breadcrumb-item active">administrateur</li>
+                                         </ol>
+                                 </div>
+                             </div>
+                             <div class="col-sm-6">
+                                <div class="float-end d-none d-sm-block">
+                                    <a href="/create-admininistrateur" class="btn btn-success">Ajouter un administrateur</a>
+                                </div>
+                             </div>
+                         </div>
+                        </div>
+                     </div>
+                     <!-- end page title -->    
+
+
+                    <div class="container-fluid">
+
+                        <div class="page-content-wrapper">
+                         
+
+
+
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card m-b-30">
+                                        <div class="card-body">
+                                            <h4 class="mt-0 header-title mb-4">Les administrateurs</h4>
+                                            <div class="table-responsive">
+                                                <table class="table table-centered table-nowrap table-hover mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Image</th>
+                                                            <th scope="">Email</th>
+                                                            <th scope="col">Role</th>       
+                                                            <th scope="col" style="width: 120px;">Action</th>       
+
+                                                
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for admin in admins %}
+                                                            <tr>
+                                                            <td>
+                                                                <img src="assets/images/logo.png" alt="" width="100">
+                                                            </td>
+                                                            <td>{{admin.email}}</td> 
+                                                            <td>{{ admin.roles[0]}}</td>
+                                                            <td id="tooltip-container0">
+													<a href={{path('app_dashboard_edit_administrateur',{'id':admin.id})}} class="me-3 text-primary" data-bs-container="#tooltip-container0" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+														<i class="mdi mdi-pencil font-size-18"></i>
+													</a>
+													<a href={{path('app_dashboard_delete_administrateur',{'id':admin.id})}} class="text-danger" data-bs-container="#tooltip-container0" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+														<i class="mdi mdi-trash-can font-size-18"></i>
+													</a>
+												</td>                                                                   
+                                                        </tr>
+                                                        {% endfor %}
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+        
+                                        </div>
+                                    </div>
+                                </div>
+        
+                            </div>
+                            <!-- END ROW -->
+
+                        </div>
+        
+                        
+                    </div> <!-- container-fluid -->
+                </div>
+{% endblock %}

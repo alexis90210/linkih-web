@@ -1,0 +1,80 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Liste des sous categories</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">sous categorie</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block">
+							<a href="/creation-sous-categorie-{{id}}" class="btn btn-success">Ajouter une sous categorie</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+
+				<div class="row">
+					<div class="col-xl-12">
+						<div class="card m-b-30">
+							<div class="card-body">
+								<h4 class="mt-0 header-title mb-4">Les sous categories</h4>
+								<div class="table-responsive">
+									<table class="table table-centered table-nowrap mb-0">
+										<thead class="thead-light">
+											<tr>
+												<th>ID</th>
+												<th>Nom</th>
+												<th>Nom ( en Anglais)</th>
+												<th>action</th>
+											</tr>
+										</thead>
+										<tbody>
+
+
+											{% for row in sous_categorie %}
+												<tr>
+													<td>#{{ row.id}}</td>
+													<td>{{ row.nom}}</td>
+													<td>{{ row.EnNom}}</td>
+													<td>
+														<a class="btn btn-primary" href="/edit-sous-categorie-{{row.getCategorie.id}}-{{row.id}}">
+															editer
+															<i class="mdi mdi-draw ms-1"></i>
+														</a>
+													</td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end row -->
+			</div>
+		</div>
+		<!-- container-fluid -->
+	</div>
+{% endblock %}

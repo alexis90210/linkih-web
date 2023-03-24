@@ -1,0 +1,193 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	 <div class="page-content">
+
+                    <!-- start page title -->
+                    <div class="page-title-box">
+                        <div class="container-fluid">
+                         <div class="row align-items-center">
+                             <div class="col-sm-6">
+                                 <div class="page-title">
+                                     <h4>Creation etablissement</h4>
+                                         <ol class="breadcrumb m-0">
+                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Linkih</a></li>
+                                             <li class="breadcrumb-item active">Creation etablissement</li>
+                                         </ol>
+                                 </div>
+                             </div>
+                             <div class="col-sm-6">
+                                <div class="float-end d-none d-sm-block">
+                                   
+                                </div>
+                             </div>
+                         </div>
+                        </div>
+                     </div>
+                     <!-- end page title -->    
+
+
+                    <div class="container-fluid">
+
+                        <div class="page-content-wrapper">
+
+                            {{ form_start(form) }}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            
+                                            <div id="addproduct-nav-pills-wizard" class="twitter-bs-wizard">
+                                                <ul class="twitter-bs-wizard-nav">
+                                                    <li class="nav-item add-product-border">
+                                                        <a href="#basic-info" class="nav-link" data-toggle="tab">
+                                                            {# <span class="step-number">Informations de l'etablissement</span> #}
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                                <!-- ebd ul -->
+                                                <div class="tab-content twitter-bs-wizard-tab-content">
+                                                    <div class="tab-pane" id="basic-info">
+                                                        <h4 class="header-title">Information generales</h4>
+
+                                                        <p class="text-danger" id="alert-call-danger"></p>
+                                                        <p class="text-success" id="alert-call-success"></p>
+
+                                                        
+                                                            <div class="row">
+                                                                {# <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="Logo">Logo</label>
+                                                                        {{ form_widget(form.Logo , {'attr' : {'class' : 'form-control'} }) }}
+                                                                    </div>
+                                                                </div> #}
+
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="nomEtab">Nom Entablissement</label>
+                                                                        {{ form_widget(form.nom , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le Nom de l'etablissement"} }) }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="nomEtab">Corps Metier</label>
+                                                                        {{ form_widget(form.CorpsMetier , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le Corps du metier"} }) }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="nomEtab">type d'etablissement</label>
+                                                                        {{ form_widget(form.type_etablissement,{'attr' : {'class' : 'form-select'} }) }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="adresse">adresse</label>
+                                                                        {{ form_widget(form.adresse , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez l'adresse"} }) }}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="email">Email</label>
+                                                                        {{ form_widget(form.mail , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez l'email"} }) }}
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- end col -->
+                                                                <div class="col-lg-4">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="mobile">Mobile</label>
+                                                                        {{ form_widget(form.mobile , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le mobile"} }) }}
+                                                                    </div>
+                                                                </div>
+                                                                <!-- end col -->
+                                                                
+                                                            </div>
+
+                                                            <div class="row">
+
+                                                                    <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="NomResponsable">Nom Responsable</label>
+                                                                            {{ form_widget(form.NomResponsable , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le Nom Responsable"} }) }}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="PosteResponsable">Poste du Responsable</label>
+                                                                            {{ form_widget(form.PosteResponsable , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le Poste Responsable"} }) }}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="Password">Password</label>
+                                                                            {{ form_widget(form.Password , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le Password"} }) }}
+                                                                        </div>
+                                                                    </div>
+
+                                                                     <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="Sciem">SIRET</label>
+                                                                            {{ form_widget(form.Sciem , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le SIRET"} }) }}
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="logo">Logo</label>
+                                                                            {{ form_widget(form.logo , {'attr' : {'class' : 'form-control', } }) }}
+                                                                        </div>
+                                                                        
+                                                                    </div>
+
+                                                                    <div class="col-lg-4">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="abonnement">Abonnement</label>
+                                                                            {{ form_widget(form.abonnement , {'attr' : {'class' : 'form-select', } }) }}
+                                                                        </div>
+                                                                        
+                                                                    </div>
+
+
+                                                                    {# <div class="col-lg-4">
+
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="CompteActif">Compte Actif ?</label>
+                                                                            {{ form_widget(form.CompteActif, {'attr':{'class':'d-flex gap-3'}} ) }}
+                                                                        </div>
+
+                                                                    </div>  #}
+
+                                                                    {# <div class="col-lg-4">
+
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label" for="CompteConfirme">Compte Confirme ?</label>
+                                                                            {{ form_widget(form.CompteConfirme, {'attr':{'class':'d-flex gap-3'}} ) }}
+                                                                        </div>
+
+                                                                    </div>     #}
+
+                                                            </div>
+                                                            <!-- end row -->
+                                                            <div class="">
+                                                                {{ form_widget(form.submit  , {'attr' : {'class' : 'btn btn-primary'} }) }}
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ form_end(form)}}
+                            <!-- end row -->
+                        </div>       
+                    </div> <!-- container-fluid -->
+                </div>
+{% endblock %}

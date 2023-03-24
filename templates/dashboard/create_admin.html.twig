@@ -1,0 +1,145 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Creation administrateur</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">Creation administrateur</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-body">
+
+								<div id="addproduct-nav-pills-wizard" class="twitter-bs-wizard">
+									<ul class="twitter-bs-wizard-nav">
+										<li class="nav-item add-product-border">
+											<a
+												href="#basic-info" class="nav-link" data-toggle="tab">
+											</a>
+										</li>
+									</ul>
+									<!-- ebd ul -->
+									<div class="tab-content twitter-bs-wizard-tab-content">
+										<div class="tab-pane" id="basic-info">
+											<h4 class="header-title">Information generales</h4>
+
+                                            <p class="text-danger" id="alert-call-danger"></p>
+                                            <p class="text-success" id="alert-call-success"></p>
+
+											<form>
+											
+												<div class="row">
+													<div class="col-lg-4">
+														<div class="mb-3">
+															<label class="form-label" for="email">Email</label>
+															<input id="email" name="email" type="text" class="form-control" placeholder="Entrez l'Email">
+														</div>
+													</div>
+													<!-- end col -->
+
+                                                    <div class="col-lg-4">
+														<div class="mb-3">
+															<label class="form-label" for="Password">Password</label>
+															<input id="Password" name="Password" type="text" class="form-control" placeholder="Entrez le Password">
+														</div>
+													</div>
+											
+												</div>
+
+
+                                                <ul class="pager wizard twitter-bs-wizard-pager-link" style="cursor:pointer !important">
+												<li class="next" style="cursor:pointer !important">
+													<a onclick="createadmin()">
+														Valider
+														<i class="mdi mdi-arrow-right ms-1"></i>
+													</a>
+												</li>
+											</ul>
+												
+											</form>
+
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end row -->
+
+			</div>
+
+
+		</div>
+		<!-- container-fluid -->
+	</div>
+
+<script>
+
+function createadmin() {
+
+    if(  document.querySelector("#email").value &&  document.querySelector("#Password").value
+    ) {
+
+         fetch("/api/v1/add/utilisateur", {
+        method:"POST",
+        data: JSON.stringify({
+            email : document.querySelector("#email").value,
+            password : document.querySelector("#Password").value,
+            role : "ROLE_ADMIN"
+        }),
+        header:{
+            Accept: 'application/json'
+        }
+    }).then( data => {
+        console.log(data);
+
+        if (data.code == 'success') {
+            document.querySelector('#alert-call-danger').innerText = ""
+            document.querySelector('#alert-call-success').innerText=data.message
+            document.querySelector("#email").value = ""
+            document.querySelector("#Password").value = ""
+        } else {
+            document.querySelector('#alert-call-success').innerText = ""
+            document.querySelector('#alert-call-danger').innerText=data.message
+        }
+    })
+
+    } else {
+        document.querySelector('#alert-call-success').innerText = ""
+            document.querySelector('#alert-call-danger').innerText="Veuillez renseigner tous les champs"
+    }
+
+   
+}
+
+</script>
+{% endblock %}

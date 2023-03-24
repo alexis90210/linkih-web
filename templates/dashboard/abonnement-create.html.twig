@@ -1,0 +1,129 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Creation abonnement</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">Creation d'un abonnement</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-body">
+								<div id="addproduct-nav-pills-wizard" class="twitter-bs-wizard">
+									<ul class="twitter-bs-wizard-nav">
+										<li class="nav-item add-product-border">
+											<a
+												href="#basic-info" class="nav-link" data-toggle="tab">
+											</a>
+										</li>
+									</ul>
+									<!-- ebd ul -->
+									<div class="tab-content twitter-bs-wizard-tab-content">
+									<a href="/abonnements" class="btn btn-success my-4">Liste des abonnements</a>											
+										<div class="tab-pane" id="basic-info">
+											<h4 class="header-title">Information generales</h4>
+
+											{{ form_start(form) }}
+												<div class="row">
+													<div class="col-lg-4">
+													<label class="form-label" for="email">Nom</label>
+													{{ form_widget(form.nom , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le nom de l'abonnement"}, 'required':'true' }) }}
+													</div>
+													<div class="mb-3 col-lg-4">
+													<label class="form-label" for="">Nom ( En Anglais)</label>
+													{{ form_widget(form.EnNom , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez l'intitule de l'abonnement"}, 'required':'true' }) }}
+												</div>
+													<div class="col-lg-4">
+													<label class="form-label" for="roles">Code</label>
+													{{ form_widget(form.code, {'attr' : {'class' : 'form-control d-flex gap-2 ', 'placeholder' : "Entrez le code de l'abonnement"}, 'required':'true' }) }}												
+													</div>
+												</div>
+
+                                                <div class="row mt-3">
+
+													<div class="col-lg-6">
+														<label class="form-label" for="password">montant</label>
+														{{ form_widget(form.montant , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez le montant"}, 'required':'true' }) }}
+													</div>
+
+													<div class="col-lg-6">
+														<label class="form-label" for="devise">devise</label>
+														{{form_widget(form.devise, {'attr' : {'class' : 'form-select'}})}}
+													</div>
+
+													
+												</div>
+
+												<div class="row mt-3">
+
+													<div class="col-lg-6">
+														<label class="form-label" for="password">description</label>
+														{{ form_widget(form.description , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez la description"}, 'required':'true' }) }}
+													</div>
+													<div class="col-lg-6">
+													<label class="form-label" for="password">duree de l'abonnement(en jour)</label>
+													{{ form_widget(form.duree_abonnement , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez la duree de l'abonnement"}, 'required':'true' }) }}
+													</div>
+
+                                                	
+												</div>
+
+												<div class="row mt-3">
+
+													<div class="col-lg-6">
+														<label class="form-label" for="password">Type abonnement</label>
+														{{ form_widget(form.type_abonnement , {'attr' : {'class' : 'form-select', 'placeholder' : "Entrez la description"}, 'required':'true' }) }}
+													</div>
+                                                	
+												</div>
+
+                                                
+													<div class="mt-3 col-lg-6">
+													{{ form_widget(form.submit, {'attr' : {'class':'btn btn-primary'}} ) }}
+													</div>
+                                                
+											{{ form_end(form)}}
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end row -->
+
+			</div>
+
+
+		</div>
+		<!-- container-fluid -->
+	</div>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    app.admin_mail: '%env(ADMIN_MAIL)%'
+    stripe_public_key: '%env(STRIPE_API_KEY)%'
+    stripe_secrete_key: '%env(STRIPE_SECRETE_KEY)%'
+    stripe_test_key: '%env(STRIPE_TEST_KEY)%'
+    image_directory : '%kernel.project_dir%/public/uploads'
+    image_etablissement_directory : '%kernel.project_dir%/public/uploads/etablissements'
+services:
+    stripe:
+        class: Stripe\StripeClient
+        arguments:
+            - '%env(STRIPE_API_KEY)%'
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones

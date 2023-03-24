@@ -1,0 +1,133 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Creation categorie principale</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">Creation categorie principale</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-body">
+
+								<div id="addproduct-nav-pills-wizard" class="twitter-bs-wizard">
+									<ul class="twitter-bs-wizard-nav">
+										<li class="nav-item add-product-border">
+											<a
+												href="#basic-info" class="nav-link" data-toggle="tab">
+											</a>
+										</li>
+									</ul>
+									<!-- ebd ul -->
+									<div class="tab-content twitter-bs-wizard-tab-content">
+									<a href="/liste-categorie" class="btn btn-success my-4">Liste des categories</a>											
+										<div class="tab-pane" id="basic-info">
+											<h4 class="header-title">Information generales</h4>
+
+                                            <p class="text-danger" id="alert-call-danger"></p>
+                                            <p class="text-success" id="alert-call-success"></p>
+
+											{{ form_start(form) }}
+												<div class="mb-3 col-lg-6">
+													<label class="form-label" for="nomPrenom">Nom</label>
+													{{ form_widget(form.nom , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez l'intitule de la categorie"}, 'required':'true' }) }}
+												</div>
+												<div class="mb-3 col-lg-6">
+													<label class="form-label" for="nomPrenom">Nom ( En Anglais)</label>
+													{{ form_widget(form.EnNom , {'attr' : {'class' : 'form-control', 'placeholder' : "Entrez l'intitule de la categorie"}, 'required':'true' }) }}
+												</div>
+                                                
+											{{ form_end(form)}}
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end row -->
+
+			</div>
+
+
+		</div>
+		<!-- container-fluid -->
+	</div>
+
+<script>
+
+function createuser() {
+
+    if( document.querySelector("#nomPrenom").value && document.querySelector("#email").value && 
+    document.querySelector("#mobile").value && document.querySelector("#Adresse").value && 
+    document.querySelector("#Password").value
+    ) {
+
+         fetch("/api/v1/add/utilisateur", {
+        method:"POST",
+        data: JSON.stringify({
+            nom : document.querySelector("#nomPrenom").value,
+            email : document.querySelector("#email").value,
+            mobile : document.querySelector("#mobile").value,
+            adresse : document.querySelector("#Adresse").value,
+            password : document.querySelector("#Password").value,
+            role : "ROLE_CLIENT"
+        }),
+        header:{
+            Accept: 'application/json'
+        }
+    }).then( data => {
+        console.log(data);
+
+        if (data.code == 'success') {
+            document.querySelector('#alert-call-danger').innerText = ""
+            document.querySelector('#alert-call-success').innerText=data.message
+            document.querySelector("#nomPrenom").value = ""
+            document.querySelector("#email").value = ""
+            document.querySelector("#mobile").value = ""
+            document.querySelector("#Adresse").value = ""
+            document.querySelector("#Password").value = ""
+        } else {
+            document.querySelector('#alert-call-success').innerText = ""
+            document.querySelector('#alert-call-danger').innerText=data.message
+        }
+    })
+
+    } else {
+        document.querySelector('#alert-call-success').innerText = ""
+            document.querySelector('#alert-call-danger').innerText="Veuillez renseigner tous les champs"
+    }
+
+   
+}
+
+</script>
+{% endblock %}

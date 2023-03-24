@@ -1,0 +1,104 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Liste des categories</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item active">Categories</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-end d-none d-sm-block">
+							<a href="/liste-categorie/" class="btn btn-success">Ajouter une categorie</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+
+
+				<div class="row">
+					<div class="col-xl-12">
+
+
+						<div class="card">
+
+							<div class="card-body">
+
+								<h4 class="header-title">Filtres</h4>
+
+								<div class="border p-3 rounded mt-4">
+
+									<h5 class="font-size-16">Recherche</h5>
+
+									<div class="search-box me-2 mt-3">
+										<div class="position-relative">
+											<input type="text" class="form-control" placeholder="Recherchez ici...">
+											<i class="ti-search search-icon"></i>
+										</div>
+									</div>
+
+								</div>
+
+								<div class="border p-3 rounded mt-4">
+									<h5 class="font-size-16">Categories</h5>
+
+
+									<div id="accordion" class="custom-accordion categories-accordion">
+
+										{% for key, categorie in categories %}
+											<div class="categories-group-card">
+												<a href="#collapse{{key}}" class="categories-group-list collapsed" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseOne">
+													<i class="ti-desktop font-size-16 align-middle me-2"></i>
+													{{ categorie.nom}}
+													<i class="mdi mdi-minus float-end accor-plus-icon"></i>
+												</a>
+
+												<div id="collapse{{key}}" class="collapse" data-parent="#accordion">
+													<div>
+														<ul class="list-unstyled categories-list mb-0">
+
+															{% for sous_categorie in categorie.sous_categorie %}
+
+																<li>
+																	<a href="#">
+																		<i class="mdi mdi-circle-medium me-1"></i>
+																		{{sous_categorie}}
+																	</a>
+																</li>
+
+															{% endfor %}
+														</ul>
+													</div>
+												</div>
+											</div>
+
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends  "dashboard/_extra/_base_dashboard.html.twig" %}
+
+{% block dashboard %}
+	<div
+		class="page-content">
+
+		<!-- start page title -->
+		<div class="page-title-box">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="page-title">
+							<h4>Detail etablissement</h4>
+							<ol class="breadcrumb m-0">
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">Linkih</a>
+								</li>
+								<li class="breadcrumb-item">
+									<a href="javascript: void(0);">etablissement</a>
+								</li>
+								<li class="breadcrumb-item active">detail</li>
+							</ol>
+						</div>
+					</div>
+					<div class="col-sm-6"></div>
+				</div>
+			</div>
+		</div>
+		<!-- end page title -->
+
+
+		<div class="container-fluid">
+
+			<div class="page-content-wrapper">
+
+
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-body">
+								<div class="row">
+									<div class="col-xl-3">
+										<div class="product-detail">
+											<div class="row">
+
+												<div class="col-md-12 col-9">
+													<div class="tab-content" id="v-pills-tabContent">
+														<div class="product-img">
+															<img src={{currentEtablissement.logo??"assets/images/salon-de-coiffure.png"}} alt="" class="img-fluid mx-auto d-block">
+														</div>
+													</div>
+
+												</div>
+											</div>
+										</div>
+										<!-- end product img -->
+									</div>
+									<div class="col-xl-9">
+										<div class="mt-4 mt-xl-3">
+											<a href="#" class="text-primary">Informations generales</a>
+											<h5 class="mt-1 mb-3">{{currentEtablissement.nom}}</h5>
+											<h6 class="mt-1 mb-3">{{currentEtablissement.adresse}}</h6>
+											<h6 class="mt-1 mb-3">{{currentEtablissement.mail}}</h6>
+											<h6 class="mt-1 mb-3">{{currentEtablissement.mobile}}</h6>
+
+											<div class="d-inline-flex">
+												<div class="text-muted me-3">
+													{%if(moyenne==0)%}
+										{%elseif(moyenne==1)%}
+											<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==1.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+										{%elseif(moyenne==2)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>	
+										{%elseif(moyenne==2.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+																			
+										{%elseif(moyenne==3)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==3.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+										{%elseif(moyenne==4)%}
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==4.5)%}
+																								<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star-half text-warning"></span>
+										{%else%}
+
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+										
+										{%endif%}
+												</div>
+											</div>
+
+
+											<hr class="my-4">
+
+											<div class="mt-4">
+												<h6>Categories :</h6>
+
+												<div class="mt-4">
+													{% for key, categorie in categories %}
+
+														{% for sous_categorie in categorie %}
+
+															<p class="text-muted mb-2">
+																<i class="mdi mdi-check-bold text-success me-2"></i>
+																{{ sous_categorie['nom'] }}</p>
+
+														{% endfor %}
+
+													{% endfor %}
+												</div>
+											</div>
+
+										<!--<div class="mt-4">
+												<button type="button" class="btn btn-primary waves-effect waves-light mt-2">
+													<i class="mdi mdi-cart me-2"></i>
+													Contactez l'etablissement
+												</button>
+											</div> -->
+
+										</div>
+									</div>
+								</div>
+								<!-- end row -->
+							</div>
+						</div>
+
+						<div class="card">
+							<div class="card-body">
+								<div class="row mt-4">
+									<div class="col-md-2">
+										<div class="product-color mt-3">
+											<h5 class="font-size-14">Detail de l'Abonnement:</h5>
+											<hr>
+											<span class="me-2">Nom : {{infosAbonnement.getAbonnement.nom}}</span>
+											<hr>
+											<span class="me-2">Activation : {{infosAbonnement.getDateActivation}}</span>
+											<hr>
+											<span class="me-2">Expiration : {{infosAbonnement.expiration}}</span>
+											<hr>
+											<span class="me-2">Temps Restant : {{tempsRestantEnJour}} jours (
+												<span class="badge badge-pill badge-soft-primary font-size-13">active</span>)</span>
+
+										</div>
+
+									</div>
+
+									<div class="col-md-5">
+										<div class="product-color mt-3">
+											<h5 class="font-size-14">Les horaires</h5>
+											{%for heureOuverture in houraireOuvertures%}
+											<hr>
+											<span class="me-2">{{heureOuverture.jour}} : {{heureOuverture.getHeureOuverture!=null?heureOuverture.getHeureOuverture:'non renseigne'}}-{{heureOuverture.getHeureFermeture !=null?heureOuverture.getHeureFermeture:'non renseigne'}} </span>
+											{% endfor %}
+										</div>
+									</div>
+
+									<div class="col-md-5">
+										<div class="product-color mt-3">
+											<h5 class="font-size-14">Les reseaux sociaux</h5>
+											{%for liens in liensReseauxSociaux%}
+											<hr>
+											<span class="me-2">{{liens.nom}} : {{liens.username!=null?liens.username:'non renseigne'}} </span>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="card">
+							<div class="card-body">
+								<h4 class="header-title mb-4">Notes:
+								</h4>
+								<div class="d-inline-flex mb-3">
+									<div class="text-muted me-3">
+
+										{%if(moyenne==0)%}
+										{%elseif(moyenne==1)%}
+											<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==1.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+										{%elseif(moyenne==2)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>	
+										{%elseif(moyenne==2.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+																			
+										{%elseif(moyenne==3)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==3.5)%}
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star-half text-warning"></span>
+										{%elseif(moyenne==4)%}
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+										{%elseif(moyenne==4.5)%}
+																								<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star text-warning"></span>
+														<span class="mdi mdi-star-half text-warning"></span>
+										{%else%}
+
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+											<span class="mdi mdi-star text-warning"></span>
+										
+										{%endif%}
+									</div>
+									<div class="text-muted">( {{nombreNotant>1? nombreNotant~' votants': nombreNotant~' votant' }})</div>
+								</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- end card -->
+			</div>
+		</div>
+	</div>
+{% endblock %}
