@@ -1184,7 +1184,7 @@ class ApiController extends AbstractController
                 ],
                 'business_type' => 'individual',
                 'business_profile' => [
-                    'url' =>  "https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/stripe/profile/{$vendeur_id}",
+                    'url' =>  "https://linkih.hlconception.com/stripe/profile/{$vendeur_id}",
                     'name' => $data->etablissement->nom,
                     'support_email' => $data->etablissement->email
                 ],
@@ -2125,8 +2125,8 @@ class ApiController extends AbstractController
         $accountLinks = $stripe->accountLinks->create(
             [
                 'account' => $data->stripe_id,
-                'refresh_url' => 'https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/reauth/' . $data->stripe_id,
-                'return_url' => 'https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/return/',
+                'refresh_url' => 'https://linkih.hlconception.com/reauth/' . $data->stripe_id,
+                'return_url' => 'https://linkih.hlconception.com/return/',
                 'type' => 'account_onboarding',
             ]
         );
