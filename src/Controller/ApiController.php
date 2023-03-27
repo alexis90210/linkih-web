@@ -836,7 +836,9 @@ class ApiController extends AbstractController
                 'montant' => $abonnement->getMontant(),
                 'description' => $abonnement->getDescription(),
                 'devise' => $abonnement->getDevise(),
-                'duree' => $abonnement->getDureeAbonnement()
+                'duree' => $abonnement->getDureeAbonnement(),
+                'type' => $abonnement->getTypeAbonnement()
+
             ]);
         }
         return $this->json([
@@ -1003,6 +1005,7 @@ class ApiController extends AbstractController
                 'code' => 'success',
                 'message' => 'user created',
                 'id' => $utilisateur->getId(),
+                'vendeur_id' => $utilisateur->getVendeurs(),
                 'login' => $data->login
             ]);
         }
@@ -1297,7 +1300,7 @@ class ApiController extends AbstractController
                         <br/>
                         Nous avons juste besoin de vérifier votre adresse e-mail avant de pouvoir accéder a l'application mobile <b>Linkih</b>.
                         <br/>
-                        Vérifiez votre adresse e-mail , le code de vérification : <b> { $codeConfirmation } </b>
+                        Vérifiez votre adresse e-mail , le code de vérification : <b> {$codeConfirmation} </b>
                         <br/>
                         Merci! – L'équipe Linkih");
 
@@ -1425,7 +1428,7 @@ class ApiController extends AbstractController
                         <br/>
                         Nous avons juste besoin de vérifier votre adresse e-mail avant de pouvoir accéder a l'application mobile <b>Linkih</b>.
                         <br/>
-                        Vérifiez votre adresse e-mail , le code de vérification : <b> { $codeConfirmation } </b>
+                        Vérifiez votre adresse e-mail , le code de vérification : <b> {$codeConfirmation} </b>
                         <br/>
                         Merci! – L'équipe Linkih");
 
@@ -1445,34 +1448,65 @@ class ApiController extends AbstractController
     }
 
     #[Route('/confirme/compte', name: 'app_confirme_compte', methods: ['POST'])]
-    public function confirme_compte(EntityManagerInterface $em, Request $request): Response
+    public function confirme_compte(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
-        $data = json_decode($request->getContent(), false);
+        try {
+            $data = json_decode($request->getContent(), false);
 
-        if (empty($data->vendeur_id)) return $this->json(['code' => 'error', 'message' => 'vendeur manquant']);
+            if (empty($data->vendeur_id)) return $this->json(['code' => 'error', 'message' => 'vendeur manquant']);
 
-        if (empty($data->code)) return $this->json(['code' => 'error', 'message' => 'code manquant']);
+            if (empty($data->code)) return $this->json(['code' => 'error', 'message' => 'code manquant']);
 
-        $vendeur = $em->getRepository(Vendeur::class)->find($data->vendeur_id);
+            $vendeur = $em->getRepository(Vendeur::class)->find($data->vendeur_id);
 
-        $vendeur_code = $vendeur->getCodeConfirmation();
+            $vendeur_code = $vendeur->getCodeConfirmation();
 
-        if ($vendeur_code == $data->code) {
-            $vendeur->setCompteConfirme(1);
-            $vendeur->setCompteActif(1);
-            $em->flush();
-        } else {
+            if ($vendeur_code == $data->code) {
+                
+                $vendeur->setCompteConfirme(1);
+                $vendeur->setCompteActif(1);
+                $em->flush();
+                
+                $admin = $this->getParameter('app.admin_mail');
+                $vendeur_nom = $vendeur->getNom(); 
+                $vendeur_login = $vendeur->getUtilisateur()->getLogin(); 
+                
+        
+                    $email = (new Email())
+                        ->from($admin)
+                        ->to($vendeur->getMail())
+                        ->priority(Email::PRIORITY_HIGH)
+                        ->subject("LINKIH ASSISTANT")
+                        ->html("
+                                Felicitations, {$vendeur_nom} !
+                                <br/>
+                                Votre compte a ete valide et confirme avec succes.
+                                <br/>
+                                Votre identifiant de connexion est : <b> $vendeur_login  </b>
+                                <br/>
+                                Merci! – L'équipe Linkih");
+
+                    $mailer->send($email);
+
+
+            } else {
+                return $this->json([
+                    'code' => 'error',
+                    'message' => 'Code de verification incorrect'
+                ]);
+            }
+
+            return $this->json([
+                'code' => 'success',
+                'message' => 'compte confirme avec success',
+                'vendeur_id' => $vendeur->getId()
+            ]);
+        } catch (\Throwable $e) {
             return $this->json([
                 'code' => 'error',
-                'message' => 'Code de verification incorrect'
+                'message' => $e->getMessage()
             ]);
         }
-
-        return $this->json([
-            'code' => 'success',
-            'message' => 'compte confirme avec success',
-            'vendeur_id' => $vendeur->getId()
-        ]);
     }
 
     #[Route('/add/abonnement', name: 'app_add_abonnement')]
@@ -1687,21 +1721,67 @@ class ApiController extends AbstractController
 
 
     #[Route('/edit/utilisateur', name: 'app_edit_utilisateur')]
-    public function edit_utilisateur(EntityManagerInterface $em, Request $request): Response
+    public function edit_utilisateur(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
         $data = json_decode($request->getContent(), false);
 
-        if ( !empty($data->login) && !empty($data->password)) {
+        if ( !empty($data->login) && !empty($data->recup)) {
             $utilisateur = $em->getRepository(Utilisateurs::class)->findOneBy([
                 'login' => $data->login
             ]);
 
             if (!$utilisateur) return $this->json(['code' => 'success',  'message' => 'client n existe pas']);
 
-            $utilisateur->setPassword( password_hash($data->password, PASSWORD_DEFAULT));
-            $em->flush();
+            $admin = $this->getParameter('app.admin_mail');
 
-            return $this->json(['code' => 'success',  'message' => 'client updated']);
+            // generate code
+            if ( $data->recup == 1) {
+
+                $codeConfirmation = random_int(1e5, 1e6);
+
+                $vendeur = $utilisateur->getVendeurs()[0];
+
+                $vendeur_email = $vendeur->getMail();
+                $vendeur_nom = $vendeur->getNom();
+
+                $vendeur->setCodeConfirmation($codeConfirmation);
+
+                try {
+                    $email = (new Email())
+                        ->from($admin)
+                        ->to($vendeur_email)
+                        ->priority(Email::PRIORITY_HIGH)
+                        ->subject("LINKIH Recuperation de compte")
+                        ->html("
+                            Salut {$vendeur_nom},
+                            <br/>
+                            Utilisez ce code ci-dessous pour reinitialiser votre compte.
+                            <br/>
+                            CODE:  <b> {$codeConfirmation} </b>
+                            <br/>
+                            Merci! – L'équipe Linkih");
+
+                    $sent = $mailer->send($email);
+
+                    $em->flush();
+                    return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation ]);
+                } catch (\Throwable $th) {
+                    return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                }
+                
+
+            } 
+
+            // reset code
+            if ( $data->recup == 2 ) {
+
+                if ( empty($data->password)) return $this->json(['code' => 'error', 'message' => 'password est obligatoire']);
+                
+                $utilisateur->setPassword( password_hash($data->password, PASSWORD_DEFAULT));
+                $em->flush();
+                
+                return $this->json(['code' => 'success', 'message' => 'Mot de passe modifie avec succes']);
+            }
 
         }
         if (empty($data->id)) return $this->json(['code' => 'error', 'message' => 'id est obligatoire']);
@@ -1717,6 +1797,7 @@ class ApiController extends AbstractController
             $geolocalisation = $utilisateur->getGeolocalisation();
             $geolocalisation->setLongitude($data->longitude);
             $geolocalisation->setLatitude($data->latitude);
+
         }
 
         if (!empty($data->prenom)) {
