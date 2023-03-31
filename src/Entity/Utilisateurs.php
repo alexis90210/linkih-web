@@ -68,6 +68,15 @@ class Utilisateurs
     #[ORM\OneToMany(mappedBy: 'Utilisateur', targetEntity: VendeurNote::class)]
     private Collection $vendeurNotes;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $Token = null;
+
+    #[ORM\Column(length: 3, nullable: true)]
+    private ?string $compteActif = null;
+
+    #[ORM\Column(length: 3, nullable: true)]
+    private ?string $compteConfirme = null;
+
     public function __construct()
     {
         $this->vendeurs = new ArrayCollection();
@@ -323,6 +332,42 @@ class Utilisateurs
                 $vendeurNote->setUtilisateur(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->Token;
+    }
+
+    public function setToken(?string $Token): self
+    {
+        $this->Token = $Token;
+
+        return $this;
+    }
+
+    public function getCompteActif(): ?string
+    {
+        return $this->compteActif;
+    }
+
+    public function setCompteActif(?string $compteActif): self
+    {
+        $this->compteActif = $compteActif;
+
+        return $this;
+    }
+
+    public function getCompteConfirme(): ?string
+    {
+        return $this->compteConfirme;
+    }
+
+    public function setCompteConfirme(?string $compteConfirme): self
+    {
+        $this->compteConfirme = $compteConfirme;
 
         return $this;
     }

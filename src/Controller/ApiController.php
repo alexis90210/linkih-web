@@ -56,7 +56,9 @@ class ApiController extends AbstractController
 
         $compteActif = 1;
 
-        if ($utilisateur->getRole()[0] == "ROLE_VENDEUR") {
+        $role = $utilisateur->getRole()[0];
+
+        if ($role == "ROLE_VENDEUR") {
             if ($utilisateur->getVendeurs()[0]->getCompteConfirme() == 0) {
                 return $this->json([
                     'code' => 'error',
@@ -74,9 +76,7 @@ class ApiController extends AbstractController
 
                 $compteActif = 0;
             }
-        }
 
-        if ($utilisateur->getRole()[0] == $data->role) {
             return $this->json([
                 'code' => 'success',
                 'message' => [
@@ -85,9 +85,36 @@ class ApiController extends AbstractController
                     "nom" => $utilisateur->getNom(),
                     "prenom" => $utilisateur->getPrenom(),
                     "role" => $utilisateur->getRole()[0],
-                    "compte_actif" => $compteActif
+                    "compte_actif" => $utilisateur->getCompteActif() 
                 ]
             ]);
+        }
+
+        else if ($role == 'ROLE_CLIENT') {
+           if ($utilisateur->getCompteActif() == 0 || $utilisateur->getCompteConfirme() == 0) {
+            return $this->json([
+                'code' => 'success',
+                'message' => [
+                    "id" => $utilisateur->getId(),
+                    'code' => 'error',
+                    'message' => "Votre compte n'a pas encore ete confirme, Confirmez maintenant",
+                    "status" => 0,
+                    "compte_actif" => $utilisateur->getCompteActif()
+                ]
+            ]);
+           } else {
+            return $this->json([
+                'code' => 'success',
+                'message' => [
+                    "id" => $utilisateur->getId(),
+                    "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                    "nom" => $utilisateur->getNom(),
+                    "prenom" => $utilisateur->getPrenom(),
+                    "role" => $utilisateur->getRole()[0],
+                    "compte_actif" => $utilisateur->getCompteActif() 
+                ]
+            ]);
+           }
         } else {
             return $this->json(['code' => 'error', 'message' => 'Votre compte n\'existe pas, veuillez vous inscrire ']);
         }
@@ -317,7 +344,7 @@ class ApiController extends AbstractController
         }
 
         //  search by etab
-        if (!empty($data->etablissement)) {
+        else if (!empty($data->etablissement)) {
             $vendeurs = $em->getRepository(Vendeur::class)->findBy([
                 'nom' => $data->etablissement
             ]);
@@ -392,7 +419,7 @@ class ApiController extends AbstractController
         }
 
         // search id vendeur
-        if (!empty($data->vendeur_id)) {
+        else if (!empty($data->vendeur_id)) {
 
             $arr_vendeurs = [];
 
@@ -454,7 +481,8 @@ class ApiController extends AbstractController
             ]);
         }
 
-        //  All etab
+        else {
+            //  All etab
         $vendeurs = $em->getRepository(Vendeur::class)->findAll();
 
         $arr_vendeurs = [];
@@ -521,10 +549,21 @@ class ApiController extends AbstractController
                 ]);
             }
         }
+
+        if (!empty($data->filtering)) {
+            $filtered = [];
+            foreach ($arr_vendeurs as $v) {
+              
+                if (empty($data->proche) && empty($data->longitude) && empty($data->latitude) ) {
+                    
+                }
+            }
+        }
         return $this->json([
             'code' => 'success',
             'message' => $arr_vendeurs
         ]);
+        }
     }
 
     #[Route('/rendez-vous', name: 'app_get_rendezvous')]
@@ -595,6 +634,8 @@ class ApiController extends AbstractController
     {
         $data = json_decode($request->getContent(), false);
 
+
+       try {
         if (empty($data->vendeur_id)) {
             return $this->json([
                 'code' => 'error',
@@ -609,16 +650,16 @@ class ApiController extends AbstractController
             'message' => 'vendeur inexistant'
         ]);
 
-        if (empty($data->utilisateur_id)) {
+        if (empty($data->client_id)) {
             return $this->json([
                 'code' => 'error',
-                'message' => 'vendeur manquant'
+                'message' => 'utilisateur manquant'
             ]);
         }
 
         if (empty($data->note)) $data->note = 5; //maximum
 
-        $client = $em->getRepository(Utilisateurs::class)->find($data->utilisateur_id);
+        $client = $em->getRepository(Utilisateurs::class)->find($data->client_id);
 
         if (!$client) return $this->json([
             'code' => 'error',
@@ -636,6 +677,12 @@ class ApiController extends AbstractController
             'code' => 'success',
             'message' => 'note created'
         ]);
+       } catch (\Throwable $th) {
+        return $this->json([
+            'code' => 'error',
+            'message' => $th->getMessage()
+        ]);
+       }
     }
 
     #[Route('/add/vendeur/prestation', name: 'app_add_vendeur_prestation')]
@@ -993,21 +1040,59 @@ class ApiController extends AbstractController
             $em->persist($geolocalisation);
             $em->flush();
 
+            // CODE CONFIRMATION
+
+            $codeConfirmation = random_int(1e5, 1e6);
+
+            $utilisateur->setToken($codeConfirmation);
+
+            $utilisateur->setCompteActif(0);
+
+            $utilisateur->setCompteConfirme( 0 );
+
             $utilisateur->setGeolocalisation($geolocalisation);
 
             $em->persist($utilisateur);
 
             $em->flush();
 
-            $em->commit();
+            $admin = $this->getParameter('app.admin_mail');
 
-            return $this->json([
-                'code' => 'success',
-                'message' => 'user created',
-                'id' => $utilisateur->getId(),
-                'vendeur_id' => $utilisateur->getVendeurs(),
-                'login' => $data->login
-            ]);
+            try {
+                $email = (new Email())
+                    ->from($admin)
+                    ->to($data->email)
+                    ->priority(Email::PRIORITY_HIGH)
+                    ->subject("LINKIH Validation Code")
+                    ->html("
+                        Salut {$data->prenom} {$data->nom} ,
+                        <br/>
+                        Nous avons juste besoin de vérifier votre adresse e-mail avant de pouvoir accéder a l'application mobile <b>Linkih</b>.
+                        <br/>
+                        Vérifiez votre adresse e-mail , le code de vérification : <b> {$codeConfirmation} </b>
+                        <br/>
+                        Merci! – L'équipe Linkih");
+
+                $sent = $mailer->send($email);
+
+                $em->commit();
+
+                return $this->json([
+                    'code' => 'success',
+                    'message' => 'user created',
+                    'id' => $utilisateur->getId(),
+                    'vendeur_id' => $utilisateur->getVendeurs(),
+                    'login' => $data->login
+                ]);
+
+            } catch (\Throwable $th) {
+                $em->rollback();
+
+                return $this->json(['code' => 'error', 'message' => $th->getMessage(), 'mail' => 'Mail non transmit']);
+            }
+
+
+           
         }
         if (isset($data->etablissement->role) && ($data->etablissement->role == 'ROLE_VENDEUR' || $data->etablissement->role == 'ROLE_AUTO_ENTREPRENEUR')) {
 
@@ -1396,8 +1481,8 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/send/mail', name: 'app_send_mail', methods: ['POST'])]
-    public function send_mail(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
+    #[Route('/send/mail/vendeur', name: 'app_send_mail_vendeur', methods: ['POST'])]
+    public function send_mail_vendeur(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
         $data = json_decode($request->getContent(), false);
 
@@ -1447,8 +1532,59 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/confirme/compte', name: 'app_confirme_compte', methods: ['POST'])]
-    public function confirme_compte(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
+    #[Route('/send/mail/client', name: 'app_send_mail_client', methods: ['POST'])]
+    public function send_mail_client(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
+    {
+        $data = json_decode($request->getContent(), false);
+
+        if (empty($data->client_id)) return $this->json(['code' => 'error', 'message' => 'client manquant']);
+
+        $client = $em->getRepository(Utilisateurs::class)->find($data->client_id);
+
+        $client_nom = $client->getNom();
+
+        $client_email = $client->getEmail();
+
+        $admin = $this->getParameter('app.admin_mail');
+
+        $codeConfirmation = random_int(1e5, 1e6);
+
+        $client->setToken($codeConfirmation);
+
+        $em->flush();
+
+        try {
+            $email = (new Email())
+                ->from($admin)
+                ->to($client_email)
+                ->priority(Email::PRIORITY_HIGH)
+                ->subject("LINKIH Validation Code")
+                ->html("
+                        Salut {$client_nom},
+                        <br/>
+                        Nous avons juste besoin de vérifier votre adresse e-mail avant de pouvoir accéder a l'application mobile <b>Linkih</b>.
+                        <br/>
+                        Vérifiez votre adresse e-mail , le code de vérification : <b> {$codeConfirmation} </b>
+                        <br/>
+                        Merci! – L'équipe Linkih");
+
+            $mailer->send($email);
+        } catch (\Throwable $th) {
+
+            return $this->json([
+                'code' => 'error',
+                'message' => $th
+            ]);
+        }
+
+        return $this->json([
+            'code' => 'success',
+            'message' => 'Email Transmit'
+        ]);
+    }
+
+    #[Route('/confirme/compte/vendeur', name: 'app_confirme_compte_vendeur', methods: ['POST'])]
+    public function confirme_compte_vendeur(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
         try {
             $data = json_decode($request->getContent(), false);
@@ -1500,6 +1636,68 @@ class ApiController extends AbstractController
                 'code' => 'success',
                 'message' => 'compte confirme avec success',
                 'vendeur_id' => $vendeur->getId()
+            ]);
+        } catch (\Throwable $e) {
+            return $this->json([
+                'code' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    #[Route('/confirme/compte/client', name: 'app_confirme_compte_client', methods: ['POST'])]
+    public function confirme_compte_client(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
+    {
+        try {
+            $data = json_decode($request->getContent(), false);
+
+            if (empty($data->client_id)) return $this->json(['code' => 'error', 'message' => 'client manquant']);
+
+            if (empty($data->code)) return $this->json(['code' => 'error', 'message' => 'code manquant']);
+
+            $client = $em->getRepository(Utilisateurs::class)->find($data->client_id);
+
+            $client_code = $client->getToken();
+
+            if ($client_code == $data->code) {
+                
+                $client->setCompteConfirme(1);
+                $client->setCompteActif(1);
+                $em->flush();
+                
+                $admin = $this->getParameter('app.admin_mail');
+                $client_nom = $client->getNom(); 
+                $client_login = $client->getLogin(); 
+                
+        
+                    $email = (new Email())
+                        ->from($admin)
+                        ->to($client->getEMail())
+                        ->priority(Email::PRIORITY_HIGH)
+                        ->subject("LINKIH ASSISTANT")
+                        ->html("
+                                Felicitations, {$client_nom} !
+                                <br/>
+                                Votre compte a ete valide et confirme avec succes.
+                                <br/>
+                                Votre identifiant de connexion est : <b> $client_login  </b>
+                                <br/>
+                                Merci! – L'équipe Linkih");
+
+                    $mailer->send($email);
+
+
+            } else {
+                return $this->json([
+                    'code' => 'error',
+                    'message' => 'Code de verification incorrect'
+                ]);
+            }
+
+            return $this->json([
+                'code' => 'success',
+                'message' => 'compte confirme avec success',
+                'client_id' => $client->getId()
             ]);
         } catch (\Throwable $e) {
             return $this->json([
@@ -1725,6 +1923,8 @@ class ApiController extends AbstractController
     {
         $data = json_decode($request->getContent(), false);
 
+        try {
+
         if ( !empty($data->login) && !empty($data->recup)) {
             $utilisateur = $em->getRepository(Utilisateurs::class)->findOneBy([
                 'login' => $data->login
@@ -1734,7 +1934,7 @@ class ApiController extends AbstractController
 
             $admin = $this->getParameter('app.admin_mail');
 
-            // generate code
+            // generate code for vendeur
             if ( $data->recup == 1) {
 
                 $codeConfirmation = random_int(1e5, 1e6);
@@ -1772,7 +1972,44 @@ class ApiController extends AbstractController
 
             } 
 
-            // reset code
+            // generate code for client
+            if ( $data->recup == 3) {
+
+                $codeConfirmation = random_int(1e5, 1e6);
+
+                $utilisateur_email = $utilisateur->getEmail();
+                $utilisateur_nom = $utilisateur->getNom();
+                $utilisateur_prenom = $utilisateur->getPrenom();
+
+                $utilisateur->setToken($codeConfirmation);
+
+                try {
+                    $email = (new Email())
+                        ->from($admin)
+                        ->to($utilisateur_email)
+                        ->priority(Email::PRIORITY_HIGH)
+                        ->subject("LINKIH Recuperation de compte")
+                        ->html("
+                            Salut {$utilisateur_prenom} {$utilisateur_nom},
+                            <br/>
+                            Utilisez ce code ci-dessous pour reinitialiser votre compte.
+                            <br/>
+                            CODE:  <b> {$codeConfirmation} </b>
+                            <br/>
+                            Merci! – L'équipe Linkih");
+
+                    $sent = $mailer->send($email);
+
+                    $em->flush();
+                    return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation ]);
+                } catch (\Throwable $th) {
+                    return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                }
+                
+
+            } 
+
+            // reset code for vendeur / client
             if ( $data->recup == 2 ) {
 
                 if ( empty($data->password)) return $this->json(['code' => 'error', 'message' => 'password est obligatoire']);
@@ -1782,6 +2019,7 @@ class ApiController extends AbstractController
                 
                 return $this->json(['code' => 'success', 'message' => 'Mot de passe modifie avec succes']);
             }
+
 
         }
         if (empty($data->id)) return $this->json(['code' => 'error', 'message' => 'id est obligatoire']);
@@ -1838,6 +2076,11 @@ class ApiController extends AbstractController
         $em->flush();
 
         return $this->json(['code' => 'success',  'message' => 'client updated']);
+
+    }
+     catch(\Throwable $th) {
+        return $this->json(['code' => 'error',  'message' => $th->getMessage() ]);
+    }
     }
 
     #[Route('/edit/vendeur', name: 'app_edit_vendeur')]

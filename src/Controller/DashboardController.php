@@ -999,8 +999,8 @@ class DashboardController extends AbstractController
         $accountLinks = $stripe->accountLinks->create(
             [
                 'account' => $vendeur_strike_id,
-                'refresh_url' => 'https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/reauth/' . $vendeur_strike_id,
-                'return_url' => 'https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/return/',
+                'refresh_url' => 'https://linkih.hlconception.com/reauth/' . $vendeur_strike_id,
+                'return_url' => 'https://linkih.hlconception.com/return/',
                 'type' => 'account_onboarding',
             ]
         );
@@ -1015,6 +1015,8 @@ class DashboardController extends AbstractController
     {
         return $this->json([]);
     }
+
+  
 
 
     #[Route('/stripe/paiement/{prix}/{devise}/{vendeur_id}', name: 'app_stripe_paiement')]
@@ -1047,7 +1049,7 @@ class DashboardController extends AbstractController
                 ],
                 'business_type' => 'individual',
                 'business_profile' => [
-                    'url' =>  "https://edf0-2c0f-ef58-160c-c400-4daf-a689-1bdf-4f96.eu.ngrok.io/stripe/profile/{$vendeur_id}",
+                    'url' =>  "https://linkih.hlconception.com/stripe/profile/{$vendeur_id}",
                     'name' => $vendeur->getNom(),
                     'support_email' => $vendeur->getMail()
                 ],
@@ -1108,4 +1110,5 @@ class DashboardController extends AbstractController
             );
         }
     }
+
 }
