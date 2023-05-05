@@ -18,6 +18,7 @@ use App\Entity\VendeurPrestationPrincipale;
 use App\Entity\VendeurSousCategorie;
 use App\Entity\VendeurSousPrestation;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,36 +86,34 @@ class ApiController extends AbstractController
                     "nom" => $utilisateur->getNom(),
                     "prenom" => $utilisateur->getPrenom(),
                     "role" => $utilisateur->getRole()[0],
-                    "compte_actif" => $utilisateur->getCompteActif() 
-                ]
-            ]);
-        }
-
-        else if ($role == 'ROLE_CLIENT') {
-           if ($utilisateur->getCompteActif() == 0 || $utilisateur->getCompteConfirme() == 0) {
-            return $this->json([
-                'code' => 'success',
-                'message' => [
-                    "id" => $utilisateur->getId(),
-                    'code' => 'error',
-                    'message' => "Votre compte n'a pas encore ete confirme, Confirmez maintenant",
-                    "status" => 0,
                     "compte_actif" => $utilisateur->getCompteActif()
                 ]
             ]);
-           } else {
-            return $this->json([
-                'code' => 'success',
-                'message' => [
-                    "id" => $utilisateur->getId(),
-                    "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
-                    "nom" => $utilisateur->getNom(),
-                    "prenom" => $utilisateur->getPrenom(),
-                    "role" => $utilisateur->getRole()[0],
-                    "compte_actif" => $utilisateur->getCompteActif() 
-                ]
-            ]);
-           }
+        } else if ($role == 'ROLE_CLIENT') {
+            if ($utilisateur->getCompteActif() == 0 || $utilisateur->getCompteConfirme() == 0) {
+                return $this->json([
+                    'code' => 'success',
+                    'message' => [
+                        "id" => $utilisateur->getId(),
+                        'code' => 'error',
+                        'message' => "Votre compte n'a pas encore ete confirme, Confirmez maintenant",
+                        "status" => 0,
+                        "compte_actif" => $utilisateur->getCompteActif()
+                    ]
+                ]);
+            } else {
+                return $this->json([
+                    'code' => 'success',
+                    'message' => [
+                        "id" => $utilisateur->getId(),
+                        "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                        "nom" => $utilisateur->getNom(),
+                        "prenom" => $utilisateur->getPrenom(),
+                        "role" => $utilisateur->getRole()[0],
+                        "compte_actif" => $utilisateur->getCompteActif()
+                    ]
+                ]);
+            }
         } else {
             return $this->json(['code' => 'error', 'message' => 'Votre compte n\'existe pas, veuillez vous inscrire ']);
         }
@@ -123,22 +122,30 @@ class ApiController extends AbstractController
     #[Route('/sous-categories', name: 'app_get_sous_categorie', methods: ['POST'])]
     public function sous_categorie(EntityManagerInterface $em): Response
     {
-        $sous_categories = $em->getRepository(SousCategorie::class)->findAll();
+        try {
+            $sous_categories = $em->getRepository(SousCategorie::class)->findAll();
+            
+            $final = [];
 
-        $final = [];
+            foreach ($sous_categories as $sous_categorie) {
+                array_push($final, [
+                    'sous_categorie_id' => $sous_categorie->getId(),
+                    'categorie_id' => $sous_categorie->getCategorie()->getId(),
+                    'nom' => $sous_categorie->getNom(),
+                    'en_nom' => $sous_categorie->getEnNom()
+                ]);
+            }
+            return $this->json([
+                'code' => 'success',
+                'message' => $final
+            ]);
 
-        foreach ($sous_categories as $sous_categorie) {
-            array_push($final, [
-                'sous_categorie_id' => $sous_categorie->getId(),
-                'categorie_id' => $sous_categorie->getCategorie()->getId(),
-                'nom' => $sous_categorie->getNom(),
-                'en_nom' => $sous_categorie->getEnNom()
+        } catch (Exception $e) {
+            return $this->json([
+                'code' => 'error',
+                'message' => $e->getMessage()
             ]);
         }
-        return $this->json([
-            'code' => 'success',
-            'message' => $final
-        ]);
     }
 
     #[Route('/utilisateurs', name: 'app_get_utilisateurs')]
@@ -316,7 +323,7 @@ class ApiController extends AbstractController
                                 'id' => $hasSousCategorie->getSousCategorie()
                             ]);
 
-                            $categorie =$categorie_entity ?  $categorie_entity->getNom() : "";
+                            $categorie = $categorie_entity ?  $categorie_entity->getNom() : "";
 
                             if ($categorie && str_contains($data->categorie, $categorie)) {
                                 array_push($result, [
@@ -479,90 +486,87 @@ class ApiController extends AbstractController
                 'code' => 'success',
                 'message' => $arr_vendeurs
             ]);
-        }
-
-        else {
+        } else {
             //  All etab
-        $vendeurs = $em->getRepository(Vendeur::class)->findAll();
+            $vendeurs = $em->getRepository(Vendeur::class)->findAll();
 
-        $arr_vendeurs = [];
-        // return only what is essentials
-        foreach ($vendeurs as $vendeur) {
+            $arr_vendeurs = [];
+            // return only what is essentials
+            foreach ($vendeurs as $vendeur) {
 
-            // CATEGORIE
-            $categorie = "";
+                // CATEGORIE
+                $categorie = "";
 
-            $hasSousCategorie = $em->getRepository(VendeurSousCategorie::class)->findOneBy([
-                'Vendeur' => $vendeur->getId()
-            ]);
-            if ($hasSousCategorie) {
-                $categorie_entity = $em->getRepository(SousCategorie::class)->findOneBy([
-                    'id' => $hasSousCategorie->getSousCategorie()
+                $hasSousCategorie = $em->getRepository(VendeurSousCategorie::class)->findOneBy([
+                    'Vendeur' => $vendeur->getId()
                 ]);
+                if ($hasSousCategorie) {
+                    $categorie_entity = $em->getRepository(SousCategorie::class)->findOneBy([
+                        'id' => $hasSousCategorie->getSousCategorie()
+                    ]);
 
-                $categorie = $categorie_entity ? $categorie_entity->getNom() : "";
-            }
-
-
-            // GESTION DES ETOILES
-            $note = 0;
-            $total = 0;
-            $votants = 0;
-
-            $notes = $vendeur->getVendeurNotes();
-
-            if ($notes) {
-                $votants = count($notes);
-
-                foreach ($notes as  $note) {
-                    $total += $note->getNote();
+                    $categorie = $categorie_entity ? $categorie_entity->getNom() : "";
                 }
-            }
 
-            $note = $votants == 0  ? 0 : ($total / $votants);
 
-            $prestations = [];
+                // GESTION DES ETOILES
+                $note = 0;
+                $total = 0;
+                $votants = 0;
 
-            if ($vendeur->getPrestations()) {
-                foreach ($vendeur->getPrestations() as  $prestation) {
-                    array_push($prestations, [
-                        "nom" => $prestation->getSousCategorie() ? $prestation->getSousCategorie()->getNom() : "",
-                        "duree" => $prestation->getDuree(),
-                        "prix" => $prestation->getPrix(),
-                        "devise" => $prestation->getDevise()
+                $notes = $vendeur->getVendeurNotes();
+
+                if ($notes) {
+                    $votants = count($notes);
+
+                    foreach ($notes as  $note) {
+                        $total += $note->getNote();
+                    }
+                }
+
+                $note = $votants == 0  ? 0 : ($total / $votants);
+
+                $prestations = [];
+
+                if ($vendeur->getPrestations()) {
+                    foreach ($vendeur->getPrestations() as  $prestation) {
+                        array_push($prestations, [
+                            "nom" => $prestation->getSousCategorie() ? $prestation->getSousCategorie()->getNom() : "",
+                            "duree" => $prestation->getDuree(),
+                            "prix" => $prestation->getPrix(),
+                            "devise" => $prestation->getDevise()
+                        ]);
+                    }
+                }
+
+                if ($vendeur->getAbonnementVendeur()) {
+                    array_push($arr_vendeurs, [
+                        "id" => $vendeur->getId(),
+                        "nom" => $vendeur->getNom(),
+                        "logo" => $vendeur->getLogo(),
+                        "longitude" => $vendeur->getGeolocalisation() ? $vendeur->getGeolocalisation()->getLongitude() : "",
+                        "latitude" => $vendeur->getGeolocalisation() ? $vendeur->getGeolocalisation()->getLatitude() : "",
+                        "adresse" => $vendeur->getAdresse(),
+                        "mobile" => $vendeur->getMobile(),
+                        "note" => $note,
+                        "prestations" => $prestations,
+                        "categorie" => $categorie
                     ]);
                 }
             }
 
-            if ($vendeur->getAbonnementVendeur()) {
-                array_push($arr_vendeurs, [
-                    "id" => $vendeur->getId(),
-                    "nom" => $vendeur->getNom(),
-                    "logo" => $vendeur->getLogo(),
-                    "longitude" => $vendeur->getGeolocalisation() ? $vendeur->getGeolocalisation()->getLongitude() : "",
-                    "latitude" => $vendeur->getGeolocalisation() ? $vendeur->getGeolocalisation()->getLatitude() : "",
-                    "adresse" => $vendeur->getAdresse(),
-                    "mobile" => $vendeur->getMobile(),
-                    "note" => $note,
-                    "prestations" => $prestations,
-                    "categorie" => $categorie
-                ]);
-            }
-        }
+            if (!empty($data->filtering)) {
+                $filtered = [];
+                foreach ($arr_vendeurs as $v) {
 
-        if (!empty($data->filtering)) {
-            $filtered = [];
-            foreach ($arr_vendeurs as $v) {
-              
-                if (empty($data->proche) && empty($data->longitude) && empty($data->latitude) ) {
-                    
+                    if (empty($data->proche) && empty($data->longitude) && empty($data->latitude)) {
+                    }
                 }
             }
-        }
-        return $this->json([
-            'code' => 'success',
-            'message' => $arr_vendeurs
-        ]);
+            return $this->json([
+                'code' => 'success',
+                'message' => $arr_vendeurs
+            ]);
         }
     }
 
@@ -635,54 +639,54 @@ class ApiController extends AbstractController
         $data = json_decode($request->getContent(), false);
 
 
-       try {
-        if (empty($data->vendeur_id)) {
+        try {
+            if (empty($data->vendeur_id)) {
+                return $this->json([
+                    'code' => 'error',
+                    'message' => 'vendeur manquant'
+                ]);
+            }
+
+            $vendeur = $em->getRepository(Vendeur::class)->find($data->vendeur_id);
+
+            if (!$vendeur) return $this->json([
+                'code' => 'error',
+                'message' => 'vendeur inexistant'
+            ]);
+
+            if (empty($data->client_id)) {
+                return $this->json([
+                    'code' => 'error',
+                    'message' => 'utilisateur manquant'
+                ]);
+            }
+
+            if (empty($data->note)) $data->note = 5; //maximum
+
+            $client = $em->getRepository(Utilisateurs::class)->find($data->client_id);
+
+            if (!$client) return $this->json([
+                'code' => 'error',
+                'message' => 'client inexistant'
+            ]);
+
+            $note = new VendeurNote();
+            $note->setVendeur($vendeur);
+            $note->setUtilisateur($client);
+            $note->setNote($data->note);
+            $em->persist($note);
+            $em->flush();
+
+            return $this->json([
+                'code' => 'success',
+                'message' => 'note created'
+            ]);
+        } catch (\Throwable $th) {
             return $this->json([
                 'code' => 'error',
-                'message' => 'vendeur manquant'
+                'message' => $th->getMessage()
             ]);
         }
-
-        $vendeur = $em->getRepository(Vendeur::class)->find($data->vendeur_id);
-
-        if (!$vendeur) return $this->json([
-            'code' => 'error',
-            'message' => 'vendeur inexistant'
-        ]);
-
-        if (empty($data->client_id)) {
-            return $this->json([
-                'code' => 'error',
-                'message' => 'utilisateur manquant'
-            ]);
-        }
-
-        if (empty($data->note)) $data->note = 5; //maximum
-
-        $client = $em->getRepository(Utilisateurs::class)->find($data->client_id);
-
-        if (!$client) return $this->json([
-            'code' => 'error',
-            'message' => 'client inexistant'
-        ]);
-
-        $note = new VendeurNote();
-        $note->setVendeur($vendeur);
-        $note->setUtilisateur($client);
-        $note->setNote($data->note);
-        $em->persist($note);
-        $em->flush();
-
-        return $this->json([
-            'code' => 'success',
-            'message' => 'note created'
-        ]);
-       } catch (\Throwable $th) {
-        return $this->json([
-            'code' => 'error',
-            'message' => $th->getMessage()
-        ]);
-       }
     }
 
     #[Route('/add/vendeur/prestation', name: 'app_add_vendeur_prestation')]
@@ -1048,7 +1052,7 @@ class ApiController extends AbstractController
 
             $utilisateur->setCompteActif(0);
 
-            $utilisateur->setCompteConfirme( 0 );
+            $utilisateur->setCompteConfirme(0);
 
             $utilisateur->setGeolocalisation($geolocalisation);
 
@@ -1084,15 +1088,11 @@ class ApiController extends AbstractController
                     'vendeur_id' => $utilisateur->getVendeurs(),
                     'login' => $data->login
                 ]);
-
             } catch (\Throwable $th) {
                 $em->rollback();
 
                 return $this->json(['code' => 'error', 'message' => $th->getMessage(), 'mail' => 'Mail non transmit']);
             }
-
-
-           
         }
         if (isset($data->etablissement->role) && ($data->etablissement->role == 'ROLE_VENDEUR' || $data->etablissement->role == 'ROLE_AUTO_ENTREPRENEUR')) {
 
@@ -1230,7 +1230,7 @@ class ApiController extends AbstractController
 
             $vendeur->setPosteResponsable($data->etablissement->poste_occupe);
 
-            if ( empty( $data->type ) ) $data->type = 1;
+            if (empty($data->type)) $data->type = 1;
 
             $vendeur->setTypeEtablissement($data->type);
 
@@ -1598,22 +1598,22 @@ class ApiController extends AbstractController
             $vendeur_code = $vendeur->getCodeConfirmation();
 
             if ($vendeur_code == $data->code) {
-                
+
                 $vendeur->setCompteConfirme(1);
                 $vendeur->setCompteActif(1);
                 $em->flush();
-                
+
                 $admin = $this->getParameter('app.admin_mail');
-                $vendeur_nom = $vendeur->getNom(); 
-                $vendeur_login = $vendeur->getUtilisateur()->getLogin(); 
-                
-        
-                    $email = (new Email())
-                        ->from($admin)
-                        ->to($vendeur->getMail())
-                        ->priority(Email::PRIORITY_HIGH)
-                        ->subject("LINKIH ASSISTANT")
-                        ->html("
+                $vendeur_nom = $vendeur->getNom();
+                $vendeur_login = $vendeur->getUtilisateur()->getLogin();
+
+
+                $email = (new Email())
+                    ->from($admin)
+                    ->to($vendeur->getMail())
+                    ->priority(Email::PRIORITY_HIGH)
+                    ->subject("LINKIH ASSISTANT")
+                    ->html("
                                 Felicitations, {$vendeur_nom} !
                                 <br/>
                                 Votre compte a ete valide et confirme avec succes.
@@ -1622,9 +1622,7 @@ class ApiController extends AbstractController
                                 <br/>
                                 Merci! – L'équipe Linkih");
 
-                    $mailer->send($email);
-
-
+                $mailer->send($email);
             } else {
                 return $this->json([
                     'code' => 'error',
@@ -1660,22 +1658,22 @@ class ApiController extends AbstractController
             $client_code = $client->getToken();
 
             if ($client_code == $data->code) {
-                
+
                 $client->setCompteConfirme(1);
                 $client->setCompteActif(1);
                 $em->flush();
-                
+
                 $admin = $this->getParameter('app.admin_mail');
-                $client_nom = $client->getNom(); 
-                $client_login = $client->getLogin(); 
-                
-        
-                    $email = (new Email())
-                        ->from($admin)
-                        ->to($client->getEMail())
-                        ->priority(Email::PRIORITY_HIGH)
-                        ->subject("LINKIH ASSISTANT")
-                        ->html("
+                $client_nom = $client->getNom();
+                $client_login = $client->getLogin();
+
+
+                $email = (new Email())
+                    ->from($admin)
+                    ->to($client->getEMail())
+                    ->priority(Email::PRIORITY_HIGH)
+                    ->subject("LINKIH ASSISTANT")
+                    ->html("
                                 Felicitations, {$client_nom} !
                                 <br/>
                                 Votre compte a ete valide et confirme avec succes.
@@ -1684,9 +1682,7 @@ class ApiController extends AbstractController
                                 <br/>
                                 Merci! – L'équipe Linkih");
 
-                    $mailer->send($email);
-
-
+                $mailer->send($email);
             } else {
                 return $this->json([
                     'code' => 'error',
@@ -1925,34 +1921,34 @@ class ApiController extends AbstractController
 
         try {
 
-        if ( !empty($data->login) && !empty($data->recup)) {
-            $utilisateur = $em->getRepository(Utilisateurs::class)->findOneBy([
-                'login' => $data->login
-            ]);
+            if (!empty($data->login) && !empty($data->recup)) {
+                $utilisateur = $em->getRepository(Utilisateurs::class)->findOneBy([
+                    'login' => $data->login
+                ]);
 
-            if (!$utilisateur) return $this->json(['code' => 'success',  'message' => 'client n existe pas']);
+                if (!$utilisateur) return $this->json(['code' => 'success',  'message' => 'client n existe pas']);
 
-            $admin = $this->getParameter('app.admin_mail');
+                $admin = $this->getParameter('app.admin_mail');
 
-            // generate code for vendeur
-            if ( $data->recup == 1) {
+                // generate code for vendeur
+                if ($data->recup == 1) {
 
-                $codeConfirmation = random_int(1e5, 1e6);
+                    $codeConfirmation = random_int(1e5, 1e6);
 
-                $vendeur = $utilisateur->getVendeurs()[0];
+                    $vendeur = $utilisateur->getVendeurs()[0];
 
-                $vendeur_email = $vendeur->getMail();
-                $vendeur_nom = $vendeur->getNom();
+                    $vendeur_email = $vendeur->getMail();
+                    $vendeur_nom = $vendeur->getNom();
 
-                $vendeur->setCodeConfirmation($codeConfirmation);
+                    $vendeur->setCodeConfirmation($codeConfirmation);
 
-                try {
-                    $email = (new Email())
-                        ->from($admin)
-                        ->to($vendeur_email)
-                        ->priority(Email::PRIORITY_HIGH)
-                        ->subject("LINKIH Recuperation de compte")
-                        ->html("
+                    try {
+                        $email = (new Email())
+                            ->from($admin)
+                            ->to($vendeur_email)
+                            ->priority(Email::PRIORITY_HIGH)
+                            ->subject("LINKIH Recuperation de compte")
+                            ->html("
                             Salut {$vendeur_nom},
                             <br/>
                             Utilisez ce code ci-dessous pour reinitialiser votre compte.
@@ -1961,35 +1957,33 @@ class ApiController extends AbstractController
                             <br/>
                             Merci! – L'équipe Linkih");
 
-                    $sent = $mailer->send($email);
+                        $sent = $mailer->send($email);
 
-                    $em->flush();
-                    return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation ]);
-                } catch (\Throwable $th) {
-                    return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                        $em->flush();
+                        return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation]);
+                    } catch (\Throwable $th) {
+                        return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                    }
                 }
-                
 
-            } 
+                // generate code for client
+                if ($data->recup == 3) {
 
-            // generate code for client
-            if ( $data->recup == 3) {
+                    $codeConfirmation = random_int(1e5, 1e6);
 
-                $codeConfirmation = random_int(1e5, 1e6);
+                    $utilisateur_email = $utilisateur->getEmail();
+                    $utilisateur_nom = $utilisateur->getNom();
+                    $utilisateur_prenom = $utilisateur->getPrenom();
 
-                $utilisateur_email = $utilisateur->getEmail();
-                $utilisateur_nom = $utilisateur->getNom();
-                $utilisateur_prenom = $utilisateur->getPrenom();
+                    $utilisateur->setToken($codeConfirmation);
 
-                $utilisateur->setToken($codeConfirmation);
-
-                try {
-                    $email = (new Email())
-                        ->from($admin)
-                        ->to($utilisateur_email)
-                        ->priority(Email::PRIORITY_HIGH)
-                        ->subject("LINKIH Recuperation de compte")
-                        ->html("
+                    try {
+                        $email = (new Email())
+                            ->from($admin)
+                            ->to($utilisateur_email)
+                            ->priority(Email::PRIORITY_HIGH)
+                            ->subject("LINKIH Recuperation de compte")
+                            ->html("
                             Salut {$utilisateur_prenom} {$utilisateur_nom},
                             <br/>
                             Utilisez ce code ci-dessous pour reinitialiser votre compte.
@@ -1998,89 +1992,82 @@ class ApiController extends AbstractController
                             <br/>
                             Merci! – L'équipe Linkih");
 
-                    $sent = $mailer->send($email);
+                        $sent = $mailer->send($email);
 
-                    $em->flush();
-                    return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation ]);
-                } catch (\Throwable $th) {
-                    return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                        $em->flush();
+                        return $this->json(['code' => 'success',  'message' => 'confirmatiion code sent', 'validation' => $codeConfirmation]);
+                    } catch (\Throwable $th) {
+                        return $this->json(['code' => 'success', 'message' => $th, 'mail' => 'Mail non transmit']);
+                    }
                 }
-                
 
-            } 
+                // reset code for vendeur / client
+                if ($data->recup == 2) {
 
-            // reset code for vendeur / client
-            if ( $data->recup == 2 ) {
+                    if (empty($data->password)) return $this->json(['code' => 'error', 'message' => 'password est obligatoire']);
 
-                if ( empty($data->password)) return $this->json(['code' => 'error', 'message' => 'password est obligatoire']);
-                
-                $utilisateur->setPassword( password_hash($data->password, PASSWORD_DEFAULT));
-                $em->flush();
-                
-                return $this->json(['code' => 'success', 'message' => 'Mot de passe modifie avec succes']);
+                    $utilisateur->setPassword(password_hash($data->password, PASSWORD_DEFAULT));
+                    $em->flush();
+
+                    return $this->json(['code' => 'success', 'message' => 'Mot de passe modifie avec succes']);
+                }
+            }
+            if (empty($data->id)) return $this->json(['code' => 'error', 'message' => 'id est obligatoire']);
+
+            $utilisateur = $em->getRepository(Utilisateurs::class)->find($data->id);
+
+            if (!empty($data->nom)) {
+                $utilisateur->setNom($data->nom);
+            }
+
+            if (!empty($data->lagitude) && !empty($data->longitude)) {
+
+                $geolocalisation = $utilisateur->getGeolocalisation();
+                $geolocalisation->setLongitude($data->longitude);
+                $geolocalisation->setLatitude($data->latitude);
+            }
+
+            if (!empty($data->prenom)) {
+                $utilisateur->setPrenom($data->prenom);
             }
 
 
+            if (!empty($data->email)) {
+                $utilisateur->setEmail($data->email);
+            }
+
+
+            if (!empty($data->mobile)) {
+                $utilisateur->setMobile($data->mobile);
+            }
+
+            if (!empty($data->photo)) {
+                $utilisateur->setPhoto($data->photo);
+            }
+
+            if (!empty($data->password)) {
+                $passwordHash = password_hash($data->password, PASSWORD_DEFAULT);
+                $utilisateur->setPassword($passwordHash);
+            }
+
+            if (!empty($data->pays)) {
+                $utilisateur->setPays($data->pays);
+            }
+
+            if (!empty($data->langue)) {
+                $utilisateur->setLangue($data->langue);
+            }
+
+            if (!empty($data->code_postal)) {
+                $utilisateur->setCodePostal($data->code_postal);
+            }
+
+            $em->flush();
+
+            return $this->json(['code' => 'success',  'message' => 'client updated']);
+        } catch (\Throwable $th) {
+            return $this->json(['code' => 'error',  'message' => $th->getMessage()]);
         }
-        if (empty($data->id)) return $this->json(['code' => 'error', 'message' => 'id est obligatoire']);
-
-        $utilisateur = $em->getRepository(Utilisateurs::class)->find($data->id);
-
-        if (!empty($data->nom)) {
-            $utilisateur->setNom($data->nom);
-        }
-
-        if (!empty($data->lagitude) && !empty($data->longitude)) {
-
-            $geolocalisation = $utilisateur->getGeolocalisation();
-            $geolocalisation->setLongitude($data->longitude);
-            $geolocalisation->setLatitude($data->latitude);
-
-        }
-
-        if (!empty($data->prenom)) {
-            $utilisateur->setPrenom($data->prenom);
-        }
-
-
-        if (!empty($data->email)) {
-            $utilisateur->setEmail($data->email);
-        }
-
-
-        if (!empty($data->mobile)) {
-            $utilisateur->setMobile($data->mobile);
-        }
-
-        if (!empty($data->photo)) {
-            $utilisateur->setPhoto($data->photo);
-        }
-
-        if (!empty($data->password)) {
-            $passwordHash = password_hash($data->password, PASSWORD_DEFAULT);
-            $utilisateur->setPassword($passwordHash);
-        }
-
-        if (!empty($data->pays)) {
-            $utilisateur->setPays($data->pays);
-        }
-
-        if (!empty($data->langue)) {
-            $utilisateur->setLangue($data->langue);
-        }
-
-        if (!empty($data->code_postal)) {
-            $utilisateur->setCodePostal($data->code_postal);
-        }
-
-        $em->flush();
-
-        return $this->json(['code' => 'success',  'message' => 'client updated']);
-
-    }
-     catch(\Throwable $th) {
-        return $this->json(['code' => 'error',  'message' => $th->getMessage() ]);
-    }
     }
 
     #[Route('/edit/vendeur', name: 'app_edit_vendeur')]
