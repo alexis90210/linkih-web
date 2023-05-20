@@ -27,7 +27,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('api/v1', methods: ['POST'])]
+#[Route('api/v1')]
 class ApiController extends AbstractController
 {
 
@@ -119,7 +119,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/sous-categories', name: 'app_get_sous_categorie', methods: ['POST'])]
+    #[Route('/sous-categories', name: 'app_get_sous_categorie', methods: ['GET'])]
     public function sous_categorie(EntityManagerInterface $em): Response
     {
         try {
@@ -148,7 +148,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/utilisateurs', name: 'app_get_utilisateurs')]
+    #[Route('/utilisateurs', name: 'app_get_utilisateurs', methods: ['GET'])]
     public function utilisateurs(EntityManagerInterface $em): Response
     {
         $utilisateurs = $em->getRepository(Utilisateurs::class)->findAll();
@@ -158,7 +158,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/utilisateur/data', name: 'app_get_utilisateur_data')]
+    #[Route('/utilisateur/data', name: 'app_get_utilisateur_data', methods: ['GET'])]
     public function utilisateur_data(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -259,7 +259,7 @@ class ApiController extends AbstractController
     }
 
 
-    #[Route('/vendeurs', name: 'app_get_vendeurs')]
+    #[Route('/vendeurs', name: 'app_get_vendeurs', methods: ['GET'])]
     public function vendeurs(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -570,7 +570,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/rendez-vous', name: 'app_get_rendezvous')]
+    #[Route('/rendez-vous', name: 'app_get_rendezvous', methods: ['GET'])]
     public function rendezvous(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -633,7 +633,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/create/vendeur/note', name: 'create_app_set_note')]
+    #[Route('/create/vendeur/note', name: 'create_app_set_note', methods: ['POST'])]
     public function create_note(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -689,7 +689,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/add/vendeur/prestation', name: 'app_add_vendeur_prestation')]
+    #[Route('/add/vendeur/prestation', name: 'app_add_vendeur_prestation', methods: ['POST'])]
     public function add_vendeur_prestation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -729,7 +729,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/sous/prestation', name: 'app_sous_prestation')]
+    #[Route('/sous/prestation', name: 'app_sous_prestation', methods: ['GET'])]
     public function sous_prestation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -778,7 +778,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/get/vendeur/prestation', name: 'app_get_vendeur_prestation')]
+    #[Route('/get/vendeur/prestation', name: 'app_get_vendeur_prestation', methods: ['GET'])]
     public function mes_prestation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -812,7 +812,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/vendeur/prestation', name: 'app_set_prestation')]
+    #[Route('/vendeur/prestation', name: 'app_set_prestation', methods: ['POST'])]
     public function prestation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -869,8 +869,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-
-    #[Route('/liste/abonnements', name: 'app_get_abonnement')]
+    #[Route('/liste/abonnements', name: 'app_get_abonnement', methods: ['GET'])]
     public function abonnement(EntityManagerInterface $em): Response
     {
         $abonnements = $em->getRepository(Abonnement::class)->findAll();
@@ -898,7 +897,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/abonnement/vendeur', name: 'app_get_abonnementvendeur')]
+    #[Route('/abonnement/vendeur', name: 'app_get_abonnementvendeur', methods: ['GET'])]
     public function abonnementvendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -920,7 +919,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/horaire/ouverture', name: 'app_get_horaire_ouverture')]
+    #[Route('/horaire/ouverture', name: 'app_get_horaire_ouverture', methods: ['GET'])]
     public function horaire_ouverture(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -948,7 +947,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/vendeur/localisation', name: 'app_get_localisation')]
+    #[Route('/vendeur/localisation', name: 'app_get_localisation', methods: ['GET'])]
     public function localisation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -968,7 +967,7 @@ class ApiController extends AbstractController
     //   CREATE DATA
     //===============================================================
 
-    #[Route('/add/utilisateur', name: 'app_add_utilisateur')]
+    #[Route('/add/utilisateur', name: 'app_add_utilisateur', methods: ['POST'])]
     public function add_utilisateurs(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1407,9 +1406,6 @@ class ApiController extends AbstractController
         }
     }
 
-
-
-
     #[Route('/vendeur/create/prestation-principale', name: 'app_create_prestation_principale', methods: ['POST'])]
     public function app_create_prestation_principale(EntityManagerInterface $em, Request $request): Response
     {
@@ -1439,6 +1435,7 @@ class ApiController extends AbstractController
             'message' => 'prestation created'
         ]);
     }
+
     #[Route('/vendeur/create/prestation-secondaire', name: 'app_create_prestation_secondaire', methods: ['POST'])]
     public function app_create_prestation_secondaire(EntityManagerInterface $em, Request $request): Response
     {
@@ -1703,7 +1700,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/add/abonnement', name: 'app_add_abonnement')]
+    #[Route('/add/abonnement', name: 'app_add_abonnement', methods: ['POST'])]
     public function add_abonnement(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1733,7 +1730,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement created']);
     }
 
-    #[Route('/add/abonnement/vendeur', name: 'app_add_abonnement_vendeur')]
+    #[Route('/add/abonnement/vendeur', name: 'app_add_abonnement_vendeur', methods: ['POST'])]
     public function add_abonnement_vendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1782,7 +1779,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement (vendeur) created']);
     }
 
-    #[Route('/add/geolocalisation', name: 'app_add_geolocalisation')]
+    #[Route('/add/geolocalisation', name: 'app_add_geolocalisation', methods: ['POST'])]
     public function add_geolocalisation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1804,7 +1801,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Geolocalisation created']);
     }
 
-    #[Route('/add/lien-reseaux-sociaux', name: 'app_add_lien_reseaux_sociaux')]
+    #[Route('/add/lien-reseaux-sociaux', name: 'app_add_lien_reseaux_sociaux', methods: ['POST'])]
     public function add_lien_reseaux_sociaux(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1832,7 +1829,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'lien reseaux created']);
     }
 
-    #[Route('/add/horaire-ouverture', name: 'app_add_horaire_ouverture')]
+    #[Route('/add/horaire-ouverture', name: 'app_add_horaire_ouverture', methods: ['POST'])]
     public function add_horaire_ouverture(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1864,7 +1861,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Horaire created']);
     }
 
-    #[Route('/add/rendez-vous', name: 'app_add_rendez_vous')]
+    #[Route('/add/rendez-vous', name: 'app_add_rendez_vous', methods: ['POST'])]
     public function add_rendez_vous(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -1914,7 +1911,7 @@ class ApiController extends AbstractController
     //===============================================================
 
 
-    #[Route('/edit/utilisateur', name: 'app_edit_utilisateur')]
+    #[Route('/edit/utilisateur', name: 'app_edit_utilisateur', methods: ['PUT'])]
     public function edit_utilisateur(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2070,7 +2067,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/edit/vendeur', name: 'app_edit_vendeur')]
+    #[Route('/edit/vendeur', name: 'app_edit_vendeur', methods: ['PUT'])]
     public function edit_vendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2152,7 +2149,7 @@ class ApiController extends AbstractController
     }
 
 
-    #[Route('/edit/abonnement', name: 'app_edit_abonnement')]
+    #[Route('/edit/abonnement', name: 'app_edit_abonnement', methods: ['PUT'])]
     public function edit_abonnement(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2182,7 +2179,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement updated']);
     }
 
-    #[Route('/edit/abonnement/vendeur', name: 'app_edit_abonnement_vendeur')]
+    #[Route('/edit/abonnement/vendeur', name: 'app_edit_abonnement_vendeur', methods: ['PUT'])]
     public function edit_abonnement_vendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2212,7 +2209,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement (vendeur) updated']);
     }
 
-    #[Route('/edit/geolocalisation', name: 'app_edit_geolocalisation')]
+    #[Route('/edit/geolocalisation', name: 'app_edit_geolocalisation', methods: ['PUT'])]
     public function edit_geolocalisation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2236,7 +2233,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Geolocalisation updated']);
     }
 
-    #[Route('/edit/lien-reseaux-sociaux', name: 'app_edit_lien_reseaux_sociaux')]
+    #[Route('/edit/lien-reseaux-sociaux', name: 'app_edit_lien_reseaux_sociaux', methods: ['PUT'])]
     public function edit_lien_reseaux_sociaux(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2264,7 +2261,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'lien reseaux updated']);
     }
 
-    #[Route('/edit/vendeur/horaire', name: 'app_edit_horaire_vendeur')]
+    #[Route('/edit/vendeur/horaire', name: 'app_edit_horaire_vendeur', methods: ['PUT'])]
     public function edit_horaire_vendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2296,7 +2293,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Horaire updated']);
     }
 
-    #[Route('/edit/rendez-vous', name: 'app_edit_rendez_vous')]
+    #[Route('/edit/rendez-vous', name: 'app_edit_rendez_vous', methods: ['PUT'])]
     public function edit_rendez_vous(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2319,7 +2316,7 @@ class ApiController extends AbstractController
     //===============================================================
 
 
-    #[Route('/delete/abonnement', name: 'app_delete_abonnement')]
+    #[Route('/delete/abonnement', name: 'app_delete_abonnement', methods: ['DELETE'])]
     public function delete_abonnement(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2335,7 +2332,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement deleted']);
     }
 
-    #[Route('/delete/abonnement/vendeur', name: 'app_delete_abonnement_vendeur')]
+    #[Route('/delete/abonnement/vendeur', name: 'app_delete_abonnement_vendeur', methods: ['DELETE'])]
     public function delete_abonnement_vendeur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2351,7 +2348,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'abonnement (vendeur) deleted']);
     }
 
-    #[Route('/delete/geolocalisation', name: 'app_delete_geolocalisation')]
+    #[Route('/delete/geolocalisation', name: 'app_delete_geolocalisation', methods: ['DELETE'])]
     public function delete_geolocalisation(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2368,7 +2365,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Geolocalisation deleted']);
     }
 
-    #[Route('/delete/lien-reseaux-sociaux', name: 'app_delete_lien_reseaux_sociaux')]
+    #[Route('/delete/lien-reseaux-sociaux', name: 'app_delete_lien_reseaux_sociaux', methods: ['DELETE'])]
     public function delete_lien_reseaux_sociaux(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2384,7 +2381,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'lien reseaux deleted']);
     }
 
-    #[Route('/delete/horaire-ouverture', name: 'app_delete_horaire_ouverture')]
+    #[Route('/delete/horaire-ouverture', name: 'app_delete_horaire_ouverture', methods: ['DELETE'])]
     public function delete_horaire_ouverture(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2400,7 +2397,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'Horaire deleted']);
     }
 
-    #[Route('/delete/rendez-vous', name: 'app_delete_rendez_vous')]
+    #[Route('/delete/rendez-vous', name: 'app_delete_rendez_vous', methods: ['DELETE'])]
     public function delete_rendez_vous(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2416,7 +2413,7 @@ class ApiController extends AbstractController
         return $this->json(['code' => 'success',  'message' => 'rendez-vous deleted']);
     }
 
-    #[Route('/stripe/vendeur/generate-url', name: 'app_stripe_generate_route')]
+    #[Route('/stripe/vendeur/generate-url', name: 'app_stripe_generate_route', methods: ['POST'])]
     public function stripe_generate_route(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
@@ -2474,7 +2471,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/vendeur/photo', name: 'app_delete_vendeur_photo', methods: ['POST'])]
+    #[Route('/delete/vendeur/photo', name: 'app_delete_vendeur_photo', methods: ['DELETE'])]
     public function app_delete_vendeur_photo(EntityManagerInterface $em, Request $request): Response
     {
 
@@ -2496,7 +2493,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/get/vendeur/gallerie', name: 'app_get_vendeur_gallerie', methods: ['POST'])]
+    #[Route('/get/vendeur/gallerie', name: 'app_get_vendeur_gallerie', methods: ['GET'])]
     public function app_get_vendeur_gallerie(EntityManagerInterface $em, Request $request): Response
     {
 
