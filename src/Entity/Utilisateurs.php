@@ -35,7 +35,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $photo = null;
 
     #[ORM\Column]
-    private array $role = [];
+    private array $roles = [];
 
     #[ORM\Column]
     private ?string $date_creation = null;
@@ -155,14 +155,9 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRole(): array
+    public function setRoles(array $roles): self
     {
-        return $this->role;
-    }
-
-    public function setRole(array $role): self
-    {
-        $this->role = $role;
+        $this->roles = $roles;
 
         return $this;
     }
