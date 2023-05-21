@@ -37,7 +37,11 @@ class ApiController extends AbstractController
 
 
     #[Route('/login', name: 'app_login_utilisateur', methods: ['POST'])]
-    public function login_utilisateur(): Response { }
+    public function login_utilisateur(): Response { 
+        // Handle by JWT 
+        // return token
+        // send json object type login + password
+    }
 
     #[Route('/logged/user-data', name: 'app_logged_user_data', methods: ['GET'])]
     public function logged_utilisateur(EntityManagerInterface $em, Request $request): Response
