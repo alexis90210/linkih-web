@@ -120,7 +120,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/logged/user-data', name: 'app_logged_user_data', methods: ['GET'])]
-    public function login_utilisateur(EntityManagerInterface $em, Request $request): Response
+    public function logged_utilisateur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
 
