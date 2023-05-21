@@ -11,15 +11,15 @@ security:
             entity:
                 class: App\Entity\Administrateur
                 property: email
-        app_linkih_provider:
-            entity:
-                class: App\Entity\Utilisateurs
-                property: login
+        # app_linkih_provider:
+        #     entity:
+        #         class: App\Entity\Utilisateurs
+        #         property: login
     firewalls:
         login:
             pattern: ^/api/v1/login
             stateless: true
-            provider: app_linkih_provider
+            # provider: app_linkih_provider
             json_login:
                 check_path: /api/v1/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
@@ -54,7 +54,7 @@ security:
     access_control:
         - { path: ^/, roles: PUBLIC_ACCESS }
         - { path: ^/dashboard, roles: ROLE_ADMIN }
-        - { path: ^/api/V1, roles: IS_AUTHENTICATED_FULLY }}
+        - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }}
 
 when@test:
     security:
