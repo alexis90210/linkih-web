@@ -36,7 +36,90 @@ class ApiController extends AbstractController
     //===============================================================
 
 
-    #[Route('/login', name: 'app_login_utilisateur')]
+    #[Route('/login', name: 'app_login_utilisateur', methods: ['POST'])]
+    public function login_utilisateur(EntityManagerInterface $em, Request $request): Response
+    {
+        $data = json_decode($request->getContent(), false);
+
+        if (empty($data->login)) return $this->json(['code' => 'error', 'message' => 'Login est obligatoire ']);
+
+        if (empty($data->password)) return $this->json(['code' => 'error', 'message' => 'Mot de passe est obligatoire ']);
+
+        if (empty($data->role)) return $this->json(['code' => 'error', 'message' => 'role est obligatoire ']);
+
+        $utilisateur = $em->getRepository(Utilisateurs::class)->findOneBy([
+            'login' =>  $data->login
+        ]);
+
+        if (!$utilisateur) return $this->json(['code' => 'error', 'message' => 'Utilisateur n\'existe pas ']);
+
+        if (!password_verify($data->password, $utilisateur->getPassword())) return $this->json(['code' => 'error', 'message' => 'Identifiant incorrect ']);
+
+        $compteActif = 1;
+
+        $role = $utilisateur->getRoles()[0];
+
+        if ($role == "ROLE_VENDEUR") {
+            if ($utilisateur->getVendeurs()[0]->getCompteConfirme() == 0) {
+                return $this->json([
+                    'code' => 'error',
+                    'message' => "Votre compte n'a pas encore ete confirme, Confirmez maintenant",
+                    "status" => 0,
+                    "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                ]);
+            }
+
+            if ($utilisateur->getVendeurs()[0]->getCompteActif() == 0) {
+                return $this->json([
+                    'code' => 'error', 'message' => "Votre compte n'est pas active, allez a la recuperation", "status" => 1,
+                    "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                ]);
+
+                $compteActif = 0;
+            }
+
+            return $this->json([
+                'code' => 'success',
+                'message' => [
+                    "id" => $utilisateur->getId(),
+                    "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                    "nom" => $utilisateur->getNom(),
+                    "prenom" => $utilisateur->getPrenom(),
+                    "role" => $utilisateur->getRoles()[0],
+                    "compte_actif" => $utilisateur->getCompteActif()
+                ]
+            ]);
+        } else if ($role == 'ROLE_CLIENT') {
+            if ($utilisateur->getCompteActif() == 0 || $utilisateur->getCompteConfirme() == 0) {
+                return $this->json([
+                    'code' => 'success',
+                    'message' => [
+                        "id" => $utilisateur->getId(),
+                        'code' => 'error',
+                        'message' => "Votre compte n'a pas encore ete confirme, Confirmez maintenant",
+                        "status" => 0,
+                        "compte_actif" => $utilisateur->getCompteActif()
+                    ]
+                ]);
+            } else {
+                return $this->json([
+                    'code' => 'success',
+                    'message' => [
+                        "id" => $utilisateur->getId(),
+                        "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
+                        "nom" => $utilisateur->getNom(),
+                        "prenom" => $utilisateur->getPrenom(),
+                        "role" => $utilisateur->getRoles()[0],
+                        "compte_actif" => $utilisateur->getCompteActif()
+                    ]
+                ]);
+            }
+        } else {
+            return $this->json(['code' => 'error', 'message' => 'Votre compte n\'existe pas, veuillez vous inscrire ']);
+        }
+    }
+
+    #[Route('/logged/user-data', name: 'app_logged_user_data', methods: ['GET'])]
     public function login_utilisateur(EntityManagerInterface $em, Request $request): Response
     {
         $data = json_decode($request->getContent(), false);
