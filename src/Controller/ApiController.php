@@ -57,7 +57,7 @@ class ApiController extends AbstractController
 
         $compteActif = 1;
 
-        $role = $utilisateur->getRole()[0];
+        $role = $utilisateur->getRoles()[0];
 
         if ($role == "ROLE_VENDEUR") {
             if ($utilisateur->getVendeurs()[0]->getCompteConfirme() == 0) {
@@ -85,7 +85,7 @@ class ApiController extends AbstractController
                     "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
                     "nom" => $utilisateur->getNom(),
                     "prenom" => $utilisateur->getPrenom(),
-                    "role" => $utilisateur->getRole()[0],
+                    "role" => $utilisateur->getRoles()[0],
                     "compte_actif" => $utilisateur->getCompteActif()
                 ]
             ]);
@@ -109,7 +109,7 @@ class ApiController extends AbstractController
                         "vendeur_id" => count($utilisateur->getVendeurs()) > 0 ? $utilisateur->getVendeurs()[0]->getId() : "",
                         "nom" => $utilisateur->getNom(),
                         "prenom" => $utilisateur->getPrenom(),
-                        "role" => $utilisateur->getRole()[0],
+                        "role" => $utilisateur->getRoles()[0],
                         "compte_actif" => $utilisateur->getCompteActif()
                     ]
                 ]);
@@ -1023,7 +1023,7 @@ class ApiController extends AbstractController
             $utilisateur->setPassword($data->password);
             $utilisateur->setEmail($data->email);
             $utilisateur->setMobile($data->mobile);
-            $utilisateur->setRole([$data->role]);
+            $utilisateur->setRoles([$data->role]);
             $utilisateur->setPays($data->pays);
             $utilisateur->setLangue($data->langue);
             $utilisateur->setCodePostal($data->postcode);
@@ -1177,7 +1177,7 @@ class ApiController extends AbstractController
                 $utilisateur->setPassword($data->etablissement->password);
                 $utilisateur->setEmail($data->etablissement->email);
                 $utilisateur->setMobile($data->etablissement->mobile);
-                $utilisateur->setRole([$data->etablissement->role]);
+                $utilisateur->setRoles([$data->etablissement->role]);
                 $utilisateur->setPays($data->etablissement->pays);
                 $utilisateur->setLangue($data->etablissement->langue);
                 $utilisateur->setCodePostal($data->etablissement->postcode);
