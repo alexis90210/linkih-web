@@ -22,6 +22,7 @@ security:
             pattern: ^/api/v1/login
             stateless: true
             json_login:
+                provider: app_user_provider
                 check_path: /api/v1/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
