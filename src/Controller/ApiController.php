@@ -37,7 +37,7 @@ class ApiController extends AbstractController
 
 
     #[Route('/login', name: 'app_login_utilisateur', methods: ['POST'])]
-    public function login_utilisateur(): Response { 
+    public function login_utilisateur() { 
         // Handle by JWT 
         // return token
         // send json object type login + password

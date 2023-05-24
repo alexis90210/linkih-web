@@ -10,7 +10,14 @@ parameters:
     stripe_test_key: '%env(STRIPE_TEST_KEY)%'
     image_directory : '%kernel.project_dir%/public/uploads'
     image_etablissement_directory : '%kernel.project_dir%/public/uploads/etablissements'
+
 services:
+    App\EventSubscriber\JWTAuthenticationSuccessListener:
+        tags:
+            - { name: 'kernel.event_subscriber' }
+    App\EventSubscriber\JWTAuthenticationFailureListener:
+        tags:
+            - { name: 'kernel.event_subscriber' }
     stripe:
         class: Stripe\StripeClient
         arguments:
