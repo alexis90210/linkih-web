@@ -56,6 +56,15 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/v1/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/add/utilisateur, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/sous-categories, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/liste/abonnements, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/send/mail/vendeur, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/send/mail/client, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/confirme/compte/vendeur, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/confirme/compte/client, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/edit/utilisateur, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/edit/vendeur, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/dashboard, roles: ROLE_ADMIN }
         
