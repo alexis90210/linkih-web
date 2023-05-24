@@ -977,7 +977,8 @@ class ApiController extends AbstractController
     #[Route('/add/utilisateur', name: 'app_add_utilisateur', methods: ['POST'])]
     public function add_utilisateurs(EntityManagerInterface $em, Request $request, MailerInterface $mailer): Response
     {
-        $data = json_decode($request->getContent(), false);
+        try {
+            $data = json_decode($request->getContent(), false);
 
         $em->beginTransaction();
 
@@ -1409,6 +1410,12 @@ class ApiController extends AbstractController
                 'utilisateur_id' => $utilisateur->getId(),
                 'login' => $data->login
 
+            ]);
+        }
+        } catch (\Throwable $th) {
+            return $this->json([
+                'code' => 'error',
+                'message' => $th->getMessage()
             ]);
         }
     }
