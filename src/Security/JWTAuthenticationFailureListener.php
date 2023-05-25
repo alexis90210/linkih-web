@@ -18,11 +18,18 @@ class JWTAuthenticationFailureListener implements EventSubscriberInterface
 
     public function onAuthenticationFailure(AuthenticationFailureEvent $event)
     {
+        $exception = $event->getException();
+
         $response = new JsonResponse([
             'code' => 'error',
-            'message' => 'erreur token, ou identifiant'
-        ], Response::HTTP_UNAUTHORIZED);
-
+            'message' => 'Authentification non reussie',
+            'error' => $exception->getMessage()
+        ], Response::HTTP_OK); 
+        
+        // Forced because Linkih app axios-http client don't correctly handle HTTP_UNAUTHAURIZED response
+        // Clear cache just after this file edition
+        // php bin/console cache:clear
+        
         $event->setResponse($response);
     }
 }
